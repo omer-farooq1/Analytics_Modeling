@@ -1,0 +1,705 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Week 1 Assignment - SVM \& KNN Classification},
+  pdfauthor={Omer Farooq (EDx ID: mfarooq4)},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{Week 1 Assignment - SVM \& KNN Classification}
+\author{Omer Farooq (EDx ID: mfarooq4)}
+\date{1/12/2020}
+
+\begin{document}
+\maketitle
+
+\hypertarget{question-2.1}{%
+\section{QUESTION 2.1}\label{question-2.1}}
+
+\textbf{Describe a situation or problem from your job, everyday life,
+current events, etc., for which a classification model would be
+appropriate. List some (up to 5) predictors that you might use.}
+
+At T-Mobile HQ in Seattle area where I am based, my team helps get
+analytics products built for our procurement and supply chain teams. One
+of the key insights we provide to our procurement teams is the
+visibility into company's spend data. We ingest transaction level
+invoices data from Accounts Payable and PO data from SAP. These datasets
+are stitched together and enriched with other datasets like HR org
+hierarchy data (to see which org or team spent what) and geographical
+data (to see which locations spend originated from).
+
+One of the key enrichment of the spend data that is currently lacking is
+the spend categorization. This mean, putting spend transactions into
+right buckets based on what the spend type was. For example, a
+transaction to buy computer hardward gets categorized under ``Hardware''
+category, an invoice to pay Accenture for their services gets
+categorized as ``Consulting Services'' and so on. This is a perfect
+problem to solve with a classification model like KNN. We even did a
+pilot with an Auto-ML software company and compared their model with the
+one from our internal data scientists. Further details are given below:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Data size:} \textasciitilde{} 1M rows of invoice transactions
+  per month
+\item
+  \textbf{Total features (columns) available:} 100+
+\item
+  \textbf{Response:} a category (from a defined hierarchy of spend
+  categories) of spend assigned to each invoice line (which is
+  represented by a single row of the data)
+\item
+  \textbf{Why is this important?} A key insight any procurement or
+  finance team needs is details into where and how comapny's dollars are
+  spend. If a procurement team can't even identify basic information
+  like how much money the company spent on let's say `software', they
+  can't do further time series and trend analysis on that category to
+  manage it better. A properly classified spend data enables procurement
+  teams to monitor the high spend categories and devise strategies to
+  manage those categories better.
+\item
+  \textbf{Predictors Useful for the Model:}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \textbf{Supplier Name} - an unstructure data type predictor with
+    supplier names entered as free text. E.g. Accenture might indicate
+    spend is for consulting services whereas Infosys or Tata Consulting
+    might indicate it's for managed service.
+  \item
+    \textbf{Business Unit}- a categorical data type with fixed names for
+    different business units. Some BUs spend more of on one type of
+    products or services. E.g. enterprise IT will almost always spend
+    more on Hardware, Software, IT Services etc.
+  \item
+    \textbf{Finance Coding} (General Ledger Account Code) - a
+    categorical data type with code numbers indicating the type of spend
+    as defined by the Finance team.
+  \item
+    \textbf{Invoice Line Description} - an unstructured data type with
+    free text explaining the what was purchased. There would most likely
+    be hints in this text regarding what product or service was
+    procured.
+  \item
+    \textbf{Supplier Location} - a categorical data type, location of a
+    given supplier would provide useful information regarding the type
+    of product or service procured. E.g. an invoice from Google in the
+    Bay Area could be for any of the services they offer whereas an
+    invoice from Google in Seattle would most likely be for Cloud
+    Services only.
+  \end{itemize}
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{question-2.2}{%
+\section{QUESTION 2.2}\label{question-2.2}}
+
+\textbf{1. Using the support vector machine function ksvm contained in
+the R package kernlab, find a good classifier for this data. Show the
+equation of your classifier, and how well it classifies the data points
+in the full data set. (Don't worry about test/validation data yet; we'll
+cover that topic soon.)}
+
+Getting the needed libraries.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(kernlab)}
+\KeywordTok{library}\NormalTok{(kknn)}
+\KeywordTok{library}\NormalTok{(caret)}
+\KeywordTok{library}\NormalTok{(data.table)}
+\end{Highlighting}
+\end{Shaded}
+
+Let's take a glimpse of the data. The original \textbf{654 rows} of the
+data have been split into a trainig dataset (70\% of the rows) and
+testing dataset (remaining 30\%). 70/30 split is selected after research
+online and published work where this split has been recommneded the
+most. It ensures enough data (70\%) for training and not 30\% sample is
+also enough to check the validity of the model. 20\% for testing is also
+mentioned but I went with 30\% so that there is enough new data for the
+model to be properly vetted.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{my_data <-}\StringTok{ }\KeywordTok{read.delim}\NormalTok{(}\StringTok{"data_2.2/credit_card_data-headers.txt"}\NormalTok{)}
+\KeywordTok{nrow}\NormalTok{(my_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 654
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{101}\NormalTok{) }\CommentTok{#this ensures that same datasets are reproduced in the future.}
+\NormalTok{sample <-}\StringTok{ }\KeywordTok{sample.int}\NormalTok{(}\DataTypeTok{n =} \KeywordTok{nrow}\NormalTok{(my_data), }\DataTypeTok{size =} \KeywordTok{floor}\NormalTok{(.}\DecValTok{70}\OperatorTok{*}\KeywordTok{nrow}\NormalTok{(my_data)), }\DataTypeTok{replace =}\NormalTok{ F)}
+\NormalTok{train_data <-}\StringTok{ }\NormalTok{my_data[sample,]}
+\NormalTok{test_data  <-}\StringTok{ }\NormalTok{my_data[}\OperatorTok{-}\NormalTok{sample,]}
+
+\KeywordTok{nrow}\NormalTok{(train_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 457
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{nrow}\NormalTok{(test_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 197
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{head}\NormalTok{(train_data)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     A1    A2    A3    A8 A9 A10 A11 A12 A14 A15 R1
+## 430  1 20.00 7.000 0.500  0   1   0   1   0   0  0
+## 95   0 28.50 1.000 1.000  1   0   2   0 167 500  0
+## 209  1 48.17 3.500 3.500  1   1   0   1 230   0  1
+## 442  0 23.00 1.835 0.000  0   0   1   1 200  53  0
+## 351  1 39.42 1.710 0.165  0   1   0   1 400   0  0
+## 315  1 34.83 2.500 3.000  0   1   0   1 200   0  0
+\end{verbatim}
+
+I decided to use the KSVM function from Kernlab package instead of SVM
+function from e1701 package. Main difference in KSVM are the different
+kernal method available to try out non-linear classifications. e1701
+only offers linear, radial basis , polynomial and sigmoid fittings,
+whereas KSVM offers around 10 kernal functions including linear
+(vanilladot), hyperbolic (tanhdot), ANOVA (anovadot) etc. This is
+important b/c even though SVM theoretically finds the linear separation
+my maximizing the margin, in real life, most available datasets have
+non-linear decision boundaries. The kernal function of KSVM helps deals
+with that.
+
+Let's take a look at classifier from KSVM using linear kernel function
+(vanilladot) and a relatively high C value (=100). The model is trained
+and validated on the same training dataset as a starter.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#building model on training dataset}
+\NormalTok{model_ksvm <-}\StringTok{ }\KeywordTok{ksvm}\NormalTok{( }\DataTypeTok{x =} \KeywordTok{as.matrix}\NormalTok{(train_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{]),}
+                    \DataTypeTok{y =} \KeywordTok{as.factor}\NormalTok{(train_data[,}\DecValTok{11}\NormalTok{]),}
+                    \DataTypeTok{type=}\StringTok{'C-svc'}\NormalTok{,}
+                    \DataTypeTok{kernel=} \StringTok{'vanilladot'}\NormalTok{,}
+                    \DataTypeTok{C=}\DecValTok{100}\NormalTok{, }\DataTypeTok{scaled=}\OtherTok{TRUE}
+\NormalTok{                    )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  Setting default kernel parameters
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#checking model on the training data itself}
+\NormalTok{predictions <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(model_ksvm,}\DataTypeTok{newdata =}\NormalTok{ train_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{])}
+\KeywordTok{confusionMatrix}\NormalTok{(}\KeywordTok{factor}\NormalTok{(train_data[,}\DecValTok{11}\NormalTok{], }\DataTypeTok{levels =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)),predictions)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction   0   1
+##          0 192  55
+##          1  13 197
+##                                           
+##                Accuracy : 0.8512          
+##                  95% CI : (0.8152, 0.8826)
+##     No Information Rate : 0.5514          
+##     P-Value [Acc > NIR] : < 2.2e-16       
+##                                           
+##                   Kappa : 0.7049          
+##                                           
+##  Mcnemar's Test P-Value : 6.627e-07       
+##                                           
+##             Sensitivity : 0.9366          
+##             Specificity : 0.7817          
+##          Pos Pred Value : 0.7773          
+##          Neg Pred Value : 0.9381          
+##              Prevalence : 0.4486          
+##          Detection Rate : 0.4201          
+##    Detection Prevalence : 0.5405          
+##       Balanced Accuracy : 0.8592          
+##                                           
+##        'Positive' Class : 0               
+## 
+\end{verbatim}
+
+The model shows an accuracy of \textbf{85.12\%} on the training dataset.
+Let's check model's performance on testing dataset.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#checking predictions on testing dataset}
+\NormalTok{predictions <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(model_ksvm,}\DataTypeTok{newdata =}\NormalTok{ test_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{])}
+\KeywordTok{confusionMatrix}\NormalTok{(}\KeywordTok{factor}\NormalTok{(test_data[,}\DecValTok{11}\NormalTok{], }\DataTypeTok{levels =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)),predictions)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction  0  1
+##          0 94 17
+##          1  4 82
+##                                           
+##                Accuracy : 0.8934          
+##                  95% CI : (0.8417, 0.9328)
+##     No Information Rate : 0.5025          
+##     P-Value [Acc > NIR] : < 2.2e-16       
+##                                           
+##                   Kappa : 0.7869          
+##                                           
+##  Mcnemar's Test P-Value : 0.008829        
+##                                           
+##             Sensitivity : 0.9592          
+##             Specificity : 0.8283          
+##          Pos Pred Value : 0.8468          
+##          Neg Pred Value : 0.9535          
+##              Prevalence : 0.4975          
+##          Detection Rate : 0.4772          
+##    Detection Prevalence : 0.5635          
+##       Balanced Accuracy : 0.8937          
+##                                           
+##        'Positive' Class : 0               
+## 
+\end{verbatim}
+
+The model's accuracy goes up to \textbf{89.34\%} on testing dataset. The
+accuracy scores are not expected to match in general across training \&
+testing datasets. This is expected because because sometimes small
+overfitting of the training dataset is inevitable, making the model's
+performance on training data better, whereas other times the training
+dataset performs better indicating the model is truly working well.
+
+Since I need to find the best C value for the mode, I will run a loop
+for different C values and document the accuracy to see which C value
+performs the best. 20 C values separated by 1e+/-01 are used in the
+loop.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{TestCs <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{10}\OperatorTok{**}\NormalTok{(}\OperatorTok{-}\DecValTok{10}\OperatorTok{:}\DecValTok{10}\NormalTok{)) }
+
+\NormalTok{iter =}\StringTok{ }\KeywordTok{length}\NormalTok{(TestCs)}
+
+\NormalTok{results <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\OtherTok{NA}\NormalTok{, }\DataTypeTok{nrow=}\NormalTok{iter, }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(results) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Cvalue"}\NormalTok{,}\StringTok{"Accuracy"}\NormalTok{)}
+
+\CommentTok{#looping Cs on the model and documenting accuracy percentage}
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{iter)\{}
+\NormalTok{    model_ksvm <-}\StringTok{ }\KeywordTok{ksvm}\NormalTok{( }\DataTypeTok{x =} \KeywordTok{as.matrix}\NormalTok{(train_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{]),}
+                    \DataTypeTok{y =} \KeywordTok{as.factor}\NormalTok{(train_data[,}\DecValTok{11}\NormalTok{]),}
+                    \DataTypeTok{type=}\StringTok{'C-svc'}\NormalTok{,}
+                    \DataTypeTok{kernel=} \StringTok{'vanilladot'}\NormalTok{,}
+                    \DataTypeTok{C=}\NormalTok{TestCs[[i]], }
+                    \DataTypeTok{scaled=}\OtherTok{TRUE}
+\NormalTok{                    )}
+\NormalTok{    predictions <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(model_ksvm,}\DataTypeTok{newdata =}\NormalTok{ test_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{])}
+\NormalTok{    results[i,] <-}\StringTok{ }\KeywordTok{c}\NormalTok{(TestCs[[i]], }\KeywordTok{sum}\NormalTok{(predictions }\OperatorTok{==}\StringTok{ }\NormalTok{test_data[,}\DecValTok{11}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{nrow}\NormalTok{(test_data))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{results}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       Cvalue  Accuracy
+##  [1,]  1e-10 0.5634518
+##  [2,]  1e-09 0.5634518
+##  [3,]  1e-08 0.5634518
+##  [4,]  1e-07 0.5634518
+##  [5,]  1e-06 0.5634518
+##  [6,]  1e-05 0.5634518
+##  [7,]  1e-04 0.5634518
+##  [8,]  1e-03 0.8324873
+##  [9,]  1e-02 0.8934010
+## [10,]  1e-01 0.8934010
+## [11,]  1e+00 0.8934010
+## [12,]  1e+01 0.8934010
+## [13,]  1e+02 0.8934010
+## [14,]  1e+03 0.8934010
+## [15,]  1e+04 0.8934010
+## [16,]  1e+05 0.8934010
+## [17,]  1e+06 0.8781726
+## [18,]  1e+07 0.7106599
+## [19,]  1e+08 0.6903553
+## [20,]  1e+09 0.6700508
+## [21,]  1e+10 0.6700508
+\end{verbatim}
+
+The results of the loop above show that for C values b/w 0.01 to 100,000
+the accuracy of the model does not change i.e.89.34\%. Accuracy drops
+below 0.01 and above 100,000.
+
+I will use \textbf{C = 100} value to find the classifier from KSVM
+model. This C value is in the middle of the range for which accuracy is
+the same. This ensures that there is neither too much emphasis on the
+margin nor the total error. At the same time, it also indicates the
+right trade-off b/w margin and total error because for a higher than
+100,000 C and lower than 0.01 C, accuracy is lower.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#final classifer using C=100}
+
+\NormalTok{final_model_ksvm <-}\StringTok{ }\KeywordTok{ksvm}\NormalTok{( }\DataTypeTok{x =} \KeywordTok{as.matrix}\NormalTok{(train_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{]),}
+                    \DataTypeTok{y =} \KeywordTok{as.factor}\NormalTok{(train_data[,}\DecValTok{11}\NormalTok{]),}
+                    \DataTypeTok{type=}\StringTok{'C-svc'}\NormalTok{,}
+                    \DataTypeTok{kernel=} \StringTok{'vanilladot'}\NormalTok{,}
+                    \DataTypeTok{C=}\DecValTok{100}\NormalTok{, }\DataTypeTok{scaled=}\OtherTok{TRUE}
+\NormalTok{                    ) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  Setting default kernel parameters
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{final_predictions <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(final_model_ksvm,}\DataTypeTok{newdata =}\NormalTok{ test_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{])}
+\KeywordTok{confusionMatrix}\NormalTok{(}\KeywordTok{factor}\NormalTok{(test_data[,}\DecValTok{11}\NormalTok{], }\DataTypeTok{levels =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{)),final_predictions)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction  0  1
+##          0 94 17
+##          1  4 82
+##                                           
+##                Accuracy : 0.8934          
+##                  95% CI : (0.8417, 0.9328)
+##     No Information Rate : 0.5025          
+##     P-Value [Acc > NIR] : < 2.2e-16       
+##                                           
+##                   Kappa : 0.7869          
+##                                           
+##  Mcnemar's Test P-Value : 0.008829        
+##                                           
+##             Sensitivity : 0.9592          
+##             Specificity : 0.8283          
+##          Pos Pred Value : 0.8468          
+##          Neg Pred Value : 0.9535          
+##              Prevalence : 0.4975          
+##          Detection Rate : 0.4772          
+##    Detection Prevalence : 0.5635          
+##       Balanced Accuracy : 0.8937          
+##                                           
+##        'Positive' Class : 0               
+## 
+\end{verbatim}
+
+Using this model, let's find the coefficients for the equation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#calculting a1...am}
+\NormalTok{a <-}\StringTok{ }\KeywordTok{colSums}\NormalTok{(final_model_ksvm}\OperatorTok{@}\NormalTok{xmatrix[[}\DecValTok{1}\NormalTok{]] }\OperatorTok{*}\StringTok{ }\NormalTok{final_model_ksvm}\OperatorTok{@}\NormalTok{coef[[}\DecValTok{1}\NormalTok{]])}
+\NormalTok{a}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            A1            A2            A3            A8            A9 
+## -0.0009206098 -0.0044367594 -0.0026209194  0.0047287318  1.0034635331 
+##           A10           A11           A12           A14           A15 
+## -0.0021271935 -0.0001701517 -0.0003920085 -0.0029128439  0.1051406257
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#calculting a0}
+\NormalTok{a0 <-}\StringTok{ }\OperatorTok{-}\NormalTok{final_model_ksvm}\OperatorTok{@}\NormalTok{b}
+\NormalTok{a0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.1075138
+\end{verbatim}
+
+Thus, the final equation for every point j would be:
+
+\(-0.0009206098x_{A1j} - 0.0044367594x_{A2j} - 0.0026209194x_{A3j} + 0.0047287318x_{A8j} + 1.0034635331x_{A9j} - 0.0021271935x_{A10j}\)
+\(- 0.0001701517x_{A11j} - 0.0003920085x_{A12j} - 0.0029128439x_{A14j} + 0.1051406257x_{A15j} + 0.1075138 = 0\)
+
+\textbf{2. You are welcome, but not required, to try other (nonlinear)
+kernels as well; we're not covering them in this course, but they can
+sometimes be useful and might provide better predictions than
+vanilladot.}
+
+In order to try the other kernels, let's loop over the model and use
+other available kernels. I will however skip the `stringdot' kernel
+because it specializes operating on strings and our data does not have
+strings. Though I had landed on C=100 based on the analysis above, I
+will however try a few C values from the range for which accuracy of
+linear kernel was the same.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{kernels <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{'rbfdot'}\NormalTok{,}\StringTok{'polydot'}\NormalTok{,}\StringTok{'tanhdot'}\NormalTok{,}\StringTok{'laplacedot'}\NormalTok{,}\StringTok{'besseldot'}\NormalTok{,}\StringTok{'anovadot'}\NormalTok{,}\StringTok{'splinedot'}\NormalTok{) }
+
+\NormalTok{iter =}\StringTok{ }\KeywordTok{length}\NormalTok{(kernels)}
+
+
+\NormalTok{kernel_results <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\OtherTok{NA}\NormalTok{, }\DataTypeTok{nrow=}\NormalTok{iter, }\DataTypeTok{ncol=}\DecValTok{5}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(kernel_results) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Kernel"}\NormalTok{,}\StringTok{"C=0.01"}\NormalTok{,}\StringTok{"C=1.00"}\NormalTok{,}\StringTok{"C=100"}\NormalTok{,}\StringTok{"C=10000"}\NormalTok{)}
+
+\CommentTok{#looping different kernel on the model and documenting accuracy percentage for 4 different C values}
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{iter)\{}
+\NormalTok{    c0}\FloatTok{.01}\NormalTok{ <-}\StringTok{ }\KeywordTok{ksvm}\NormalTok{( }\DataTypeTok{x =} \KeywordTok{as.matrix}\NormalTok{(train_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{]),}
+                    \DataTypeTok{y =} \KeywordTok{as.factor}\NormalTok{(train_data[,}\DecValTok{11}\NormalTok{]),}
+                    \DataTypeTok{type=}\StringTok{'C-svc'}\NormalTok{,}
+                    \DataTypeTok{kernel=}\NormalTok{ kernels[[i]],}
+                    \DataTypeTok{C=}\FloatTok{0.01}\NormalTok{, }
+                    \DataTypeTok{scaled=}\OtherTok{TRUE}
+\NormalTok{                    )}
+\NormalTok{    c1}\FloatTok{.00}\NormalTok{ <-}\StringTok{ }\KeywordTok{ksvm}\NormalTok{( }\DataTypeTok{x =} \KeywordTok{as.matrix}\NormalTok{(train_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{]),}
+                    \DataTypeTok{y =} \KeywordTok{as.factor}\NormalTok{(train_data[,}\DecValTok{11}\NormalTok{]),}
+                    \DataTypeTok{type=}\StringTok{'C-svc'}\NormalTok{,}
+                    \DataTypeTok{kernel=}\NormalTok{ kernels[[i]],}
+                    \DataTypeTok{C=}\DecValTok{1}\NormalTok{, }
+                    \DataTypeTok{scaled=}\OtherTok{TRUE}
+\NormalTok{                    )}
+\NormalTok{    c100 <-}\StringTok{ }\KeywordTok{ksvm}\NormalTok{( }\DataTypeTok{x =} \KeywordTok{as.matrix}\NormalTok{(train_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{]),}
+                    \DataTypeTok{y =} \KeywordTok{as.factor}\NormalTok{(train_data[,}\DecValTok{11}\NormalTok{]),}
+                    \DataTypeTok{type=}\StringTok{'C-svc'}\NormalTok{,}
+                    \DataTypeTok{kernel=}\NormalTok{ kernels[[i]],}
+                    \DataTypeTok{C=}\DecValTok{100}\NormalTok{, }
+                    \DataTypeTok{scaled=}\OtherTok{TRUE}
+\NormalTok{                    )}
+\NormalTok{    c10000 <-}\StringTok{ }\KeywordTok{ksvm}\NormalTok{( }\DataTypeTok{x =} \KeywordTok{as.matrix}\NormalTok{(train_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{]),}
+                    \DataTypeTok{y =} \KeywordTok{as.factor}\NormalTok{(train_data[,}\DecValTok{11}\NormalTok{]),}
+                    \DataTypeTok{type=}\StringTok{'C-svc'}\NormalTok{,}
+                    \DataTypeTok{kernel=}\NormalTok{ kernels[[i]],}
+                    \DataTypeTok{C=}\DecValTok{10000}\NormalTok{, }
+                    \DataTypeTok{scaled=}\OtherTok{TRUE}
+\NormalTok{                    )}
+\NormalTok{    predc0}\FloatTok{.01}\NormalTok{ <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(c0}\FloatTok{.01}\NormalTok{,}\DataTypeTok{newdata =}\NormalTok{ test_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{])}
+\NormalTok{    predc1}\FloatTok{.00}\NormalTok{ <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(c1}\FloatTok{.00}\NormalTok{,}\DataTypeTok{newdata =}\NormalTok{ test_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{])}
+\NormalTok{    predc100 <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(c100,}\DataTypeTok{newdata =}\NormalTok{ test_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{])}
+\NormalTok{    predc10000 <-}\StringTok{ }\KeywordTok{predict}\NormalTok{(c10000,}\DataTypeTok{newdata =}\NormalTok{ test_data[,}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{])}
+\NormalTok{    kernel_results[i,] <-}\StringTok{ }\KeywordTok{c}\NormalTok{(kernels[[i]], }
+                            \KeywordTok{sum}\NormalTok{(predc0}\FloatTok{.01} \OperatorTok{==}\StringTok{ }\NormalTok{test_data[,}\DecValTok{11}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{nrow}\NormalTok{(test_data),}
+                            \KeywordTok{sum}\NormalTok{(predc1}\FloatTok{.00} \OperatorTok{==}\StringTok{ }\NormalTok{test_data[,}\DecValTok{11}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{nrow}\NormalTok{(test_data),}
+                            \KeywordTok{sum}\NormalTok{(predc100 }\OperatorTok{==}\StringTok{ }\NormalTok{test_data[,}\DecValTok{11}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{nrow}\NormalTok{(test_data),}
+                            \KeywordTok{sum}\NormalTok{(predc10000 }\OperatorTok{==}\StringTok{ }\NormalTok{test_data[,}\DecValTok{11}\NormalTok{]) }\OperatorTok{/}\StringTok{ }\KeywordTok{nrow}\NormalTok{(test_data)}
+\NormalTok{                            )}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters  
+##  Setting default kernel parameters
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{kernel_results}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      Kernel       C=0.01              C=1.00              C=100              
+## [1,] "rbfdot"     "0.563451776649746" "0.883248730964467" "0.82741116751269" 
+## [2,] "polydot"    "0.893401015228426" "0.893401015228426" "0.893401015228426"
+## [3,] "tanhdot"    "0.888324873096447" "0.705583756345178" "0.796954314720812"
+## [4,] "laplacedot" "0.563451776649746" "0.893401015228426" "0.878172588832487"
+## [5,] "besseldot"  "0.563451776649746" "0.873096446700508" "0.776649746192893"
+## [6,] "anovadot"   "0.893401015228426" "0.893401015228426" "0.888324873096447"
+## [7,] "splinedot"  "0.878172588832487" "0.812182741116751" "0.791878172588833"
+##      C=10000            
+## [1,] "0.796954314720812"
+## [2,] "0.893401015228426"
+## [3,] "0.786802030456853"
+## [4,] "0.878172588832487"
+## [5,] "0.751269035532995"
+## [6,] "0.873096446700508"
+## [7,] "0.791878172588833"
+\end{verbatim}
+
+The output of the analysis above shows that accuracy is varying quite a
+bit for some kernels over C values but for all kernels and C value
+iterations, I do not see any accuracy over 89.34\% which was our final
+accuracy from C=100 linear model above. This means, even though there
+are non-linear models that are closer to the linear model's accuracy,
+none of them were better.
+
+Among the seven kernel tried, polydot (Polynomial kernel-looks at not
+just input features but their combinations as well),laplacedot (which is
+similarto Gaussian \& exponential kernels which are radial basis
+functions) and ANNOVAdot (also a radial basis function) came close to
+linear model's 89\% accuracy mark.
+
+\textbf{3. Using the k-nearest-neighbors classification function kknn
+contained in the R kknn package, suggest a good value of k, and show how
+well it classifies that data points in the full data set. Don't forget
+to scale the data (scale=TRUE in kknn).}
+
+\end{document}

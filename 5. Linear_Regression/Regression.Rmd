@@ -1,0 +1,265 @@
+---
+title: "Week 5 Assignment - Simple Regression"
+author: 'Omer Farooq (EDx ID: mfarooq4)'
+date: "02/11/2020"
+output:
+  word_document:
+    toc: yes
+  pdf_document: default
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: cerulean
+    toc: yes
+---
+
+```{r setup,include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+# QUESTION 8.1
+**Describe a situation or problem from your job, everyday life, current events, etc., for which a linear regression model would be appropriate. List some (up to 5) predictors that you might use.**
+
+At my job at the T-Mobile HQ in the Seattle area, my team helps get analytics products built for our network supply chain team. This team manages the planning, procurement and logistics of getting the right equipment to the right locations so that T-Mobile's network could get built or improved. The equipment used to build or enhance the cellular network includes items like radios, antenna, cables, etc. Some of these items are very expensive with very long lead times (time from order to delivery) of several months. Another interesting fact is that the technology changes pretty rapidly and we are constantly enhancing the existing network with new radio, antenna or a receiver. Not knowing the price of the newly released item poses a risk that an unexpected high or low price could affect the budget. Similarly, an unexepctedly longer lead time of a new item could affect the supply chain planning.
+
+A regression model to predict the price and lead time of a new equipment item would be very helpful. We could train the model on past data using predictors like specifications of the equipment (frequency, range, etc.), quantity consumed, material class of the equipment (a classification hierarchy in our data for each type of equipment), dimensions, weight, vendor, etc.
+
+***
+
+# QUESTION 8.2
+**Using crime data from http://www.statsci.org/data/general/uscrime.txt (file uscrime.txt,description at http://www.statsci.org/data/general/uscrime.html ), use regression (a useful R function is lm or glm) to predict the observed crime rate in a city with the following data:**
+
+* M = 14.0
+* So = 0
+* Ed = 10.0
+* Po1 = 12.0
+* Po2 = 15.5
+* LF = 0.640
+* M.F = 94.0
+* Pop = 150
+* NW = 1.1
+* U1 = 0.120
+* U2 = 3.6
+* Wealth = 3200
+* Ineq = 20.1
+* Prob = 0.04
+* Time = 39.0
+
+**Show your model (factors used and their coefficients), the software output, and the quality of fit.**
+
+**Note that because there are only 47 data points and 15 predictors, you’ll probably notice some overfitting. We’ll see ways of dealing with this sort of problem later in the course.**
+
+Loaded all needed library.
+
+```{r load libraries}
+
+library(corrplot) #for correlation plot
+library (caret) #for cross-validation
+library(MASS) #for stepwise regression
+
+```
+
+Next, I loaded the Crimes data and printed a sample and summary of the data. The summary of Crime column is to be noted. Min is 342 and max is 1993 with median 831 and mean 905. This tells us the acceptable range of our predicted value for the given parameters given all provided parameters are within the ranges of available data.
+
+```{r load data}
+
+#setting the seed so that results are the same at every run
+set.seed(101) 
+
+#loading data
+crimedata <- read.delim("data_5.1/uscrime.txt")
+
+#quick glance at the data
+head(crimedata)
+
+#basic stats of the temps data
+summary(crimedata)
+
+```
+
+I built a dataframe of the provided predictors to use in the models later on. 
+
+```{r predict data}
+
+#data frame with data we need to predict crime for
+predictdata <-data.frame(M = 14.0,So = 0, Ed = 10.0, Po1 = 12.0, Po2 = 15.5,LF = 0.640, M.F = 94.0, Pop = 150, NW = 1.1, U1 = 0.120, U2 = 3.6, Wealth = 3200, Ineq = 20.1, Prob = 0.040,Time = 39.0)
+
+```
+
+Before I jumped into models, I checked the pearson correlation matrix of the Crimes data. Value is 1 and -1 indicate positive and negative correlation where 0 indicates no correlation. The last column was of interest where correlation of Crime column with each predictor was given. Po1, Po2, Wealth and Prob showed some correlation to Crime column. The models built below tested these correlations further. 
+
+```{r pearson correlation matrix}
+
+#pearson correlation matrix 
+corrmat <- cor(crimedata)
+round(corrmat, 2)
+
+#plotting the correlation matrix
+corrplot(corrmat, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
+
+```
+
+I decided to try several regression model and compare results to see how they performed. Following is the list of different model tried. 
+
+* 1. Simple regression using lm() using all variable using all data
+* 2. Simple regression using lm() with selected variable using all data
+* 3. Simple regression using lm() using cross-validation with selected variable (using 80/20 training/testing split)
+* 4. Simple regression using cross validation using caret package
+* 5. Simple regression using stepwise method backward & forward
+
+```{r vector for capturing model results}
+
+#empty matrix to log models resuls
+model_results <- matrix(NA, nrow=5, ncol=7)
+colnames(model_results) <- c("MODEL","R-SQUARED","ADJ R-SQUARED","F-STATISTIC", "AIC", "BIC","PREDICTION")
+
+```
+
+**Model 1 - Simple regression using lm() using all variable using all data**
+
+First model was a simple regression using lm() function using all data as training dataset and all variables. R-Squared of 80% showed a great fit but given the size the data, this indicated overfitting. Even the adjusted R-Squared was high. Most importantly, the predicted Crime value of 155 was very low even compared to the lowest Crime value in the available data. This model did not seem to perform well. But the output shows the predictors that are significant than others. 
+
+```{r model 1}
+
+model1 <- lm(Crime~. , data=crimedata)
+sum_model1 <- summary(model1)
+sum_model1
+
+AIC(model1)
+BIC(model1)
+
+#predicting crime value
+predict(model1, predictdata)
+
+#logging results
+model_results[1,] <- c("Simple Reg w/ lm() w/ all var", round(sum_model1$r.squared,2), round(sum_model1$adj.r.squared,2),round(sum_model1$fstatistic[1],2),round(AIC(model1),2),round(BIC(model1),2), round(predict(model1,predictdata),2))
+
+```
+
+**Model 2 - Simple regression using lm() using selected variables using all data**
+
+Next model was similar to model 1 except that I used the suggest 6 variables from model 1 only. I still used all data to train the model. R-Sqaured and Adj R-Squared of 76.5% and 73% were lower than model 1 but still showed overfitting. Predicted value was 1304 which was closer to the 3rd quartile of the crimes data and thus in the acceptable range. 
+
+```{r model 2}
+
+model2 <- lm(Crime~ M + Ed + Po1 + U2 + Ineq + Prob , data=crimedata)
+sum_model2 <- summary(model2)
+sum_model2
+
+AIC(model2)
+BIC(model2)
+
+#predicting crime value
+predict(model2, predictdata)
+
+#logging results
+model_results[2,] <- c("Simple Reg w/ lm() w/ selected var", round(sum_model2$r.squared,2), round(sum_model2$adj.r.squared,2),round(sum_model2$fstatistic[1],2),round(AIC(model2),2),round(BIC(model2),2), round(predict(model2,predictdata),2))
+
+```
+
+**Model 3 - Simple regression using lm() with selected variable using 80/20 training/testing split**
+
+Next, I built model similar to model 2 except that I splitted the data into 80% training and 20% testing. Results were pretty similar to model 2 with R-squared of 75.8% and adjusted R-Squared of 71%. Predicted values dropped slightly compared to model 2 to 1269, and was still in the acceptable range. 
+
+```{r model 3}
+
+#splitting data to training and validation
+set.seed(101)
+sample <- sample.int(n = nrow(crimedata), size = floor(.80*nrow(crimedata)), replace = F)
+train_data <- crimedata[sample,]
+test_data  <- crimedata[-sample,]
+nrow(train_data)
+nrow(test_data)
+
+#building model 3 on training data
+model3 <- lm(Crime~ M + Ed + Po1 + U2 + Ineq + Prob , data=train_data)
+sum_model3 <- summary(model3)
+sum_model3
+
+AIC(model3)
+BIC(model3)
+
+#checking model performance on testing data
+eval3 <- predict(model3, test_data) 
+pred3 <- data.frame(cbind(actuals=test_data$Crime, predicteds=eval3))
+cor(pred3)
+head(pred3)
+
+#predicting crime value
+predict(model3, predictdata)
+
+#logging results
+model_results[3,] <- c("Simple Reg w/ lm() w/ selected var w/ train/test", round(sum_model3$r.squared,2), round(sum_model3$adj.r.squared,2),round(sum_model3$fstatistic[1],2),round(AIC(model3),2),round(BIC(model3),2), round(predict(model3,predictdata),2))
+
+```
+
+**Model 4 - Simple regression using cross validation with caret package**
+
+Next model I tried was a regression with k-fold cross validation using caret package (ref: https://r-forge.r-project.org/scm/viewvc.php/*checkout*/pkg/caret/inst/doc/caretSelection.pdf?revision=77&root=caret&pathrev=90 pages 5 and 6). This was a 10 fold cross-validation and the caret rfecontrol function checked model performance for diffferent combination of variables and suggested the best. 11 variables were suggested (RMSE was lowest for 11 varaibles). 
+
+The predicted value from this model was 641 which was very close to the 1st quartile of the data. R-squared of 62% for the selected model showed overfitting like other models. I manually calculated Adj R-Squared which was 42%.
+
+```{r model 4}
+
+set.seed(101) #to keep output consistent
+
+#building model 4
+subsets <- c(1:15)
+ctrl <- rfeControl(functions = lmFuncs, method = "cv", number = 10, verbose = FALSE)
+model4 <- rfe(crimedata[,-16], crimedata[,16], sizes = subsets, rfeControl = ctrl)
+model4
+
+#model suggest best predictors (it's suggest 11 predictors)
+predictors(model4)
+
+#plots of model4 output
+plot(model4, type=c("g","o"))
+plot(model4, metric = "Rsquared",type=c("g","o"))
+
+#predicting crime value
+predict(model4,predictdata)
+
+#calculating adj r-sq using https://mathcracker.com/r-squared-adjusted-r-squared-calculator
+model4_adjrsq <- ((1-model4$results$Rsquared[11])*(47-1)) / (47-4-1)
+
+#logging results
+model_results[4,] <- c("Simple Reg w/ cross valid using Caret", round(model4$results$Rsquared[11],2), round(model4_adjrsq,2),"","","",round(predict(model4,predictdata),2))
+
+```
+
+**5. Simple regression using stepwise method backward & forward**
+
+Lastly, I built a regression model with both ways stepwise variables selection (ref: https://www.statmethods.net/stats/regression.html). I used the stepAIC function from MASS package to perform the both ways stepwise regression. The final model with 8 variables was selected. 
+
+The predicted value was 1038 which was similar to other models and R-Squared and Adj R-Squared showed overfitting (high values).
+
+```{r model 5}
+
+#building model 5
+model5 <- stepAIC(model1, direction="both")
+model5$anova # display results
+sum_model5 <- summary(model5)
+sum_model5
+
+AIC(model5)
+BIC(model5)
+
+#predicting Crime Value
+predict(model5,predictdata)
+
+#logging results
+model_results[5,] <- c("Simple Reg using both ways stepwise", round(sum_model5$r.squared,2), round(sum_model5$adj.r.squared,2),round(sum_model5$fstatistic[1],2),round(AIC(model5),2),round(BIC(model5),2), round(predict(model5,predictdata),2))
+
+```
+
+Finally, I printed the key outputs from all 5 models including R-Sq, Adj R-Sq, F-Statistic, AIC, BIC and the predicted value. It was clear that all models except may be k-vold cross validation (model 4) showed overfitting. The predicted values, though were in acceptable range except for model 1, they varied significantly model to model with output ranging from 1st to 3rd quartile. As noted throughout, the models show overfitting due to small n (amount of data points) and we will need other techniques (regularization, drop-out layers etc.) or more data to get better results. 
+
+```{r final results}
+
+model_results
+
+```
+

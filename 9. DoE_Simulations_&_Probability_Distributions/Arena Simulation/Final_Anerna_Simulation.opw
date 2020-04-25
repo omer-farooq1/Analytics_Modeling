@@ -1,0 +1,16 @@
+[RESOURCES]
+Resource 1
+Scanner 1
+Scanner 3
+Scanner 2
+[VARIABLES]
+ID and boarding pass check.NumberIn
+ID and boarding pass check.NumberOut
+Leave.NumberOut
+Arrivals.NumberOut
+Scanner3.NumberOut
+Scanner1.NumberOut
+Scanner2.NumberOut
+Scanner3.NumberIn
+Scanner1.NumberIn
+Scanner2.NumberIn

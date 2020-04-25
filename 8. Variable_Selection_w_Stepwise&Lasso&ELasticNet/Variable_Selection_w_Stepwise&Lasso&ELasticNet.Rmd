@@ -1,0 +1,288 @@
+---
+title: "Week 8 Assignment - Variable Selection"
+author: 'Omer Farooq (EDx ID: mfarooq4)'
+date: "03/04/2020"
+output:
+  word_document:
+    toc: yes
+  pdf_document: default
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: cerulean
+    toc: yes
+---
+
+```{r setup,include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+# QUESTION 11.1
+**Using the crime data set uscrime.txt from Questions 8.2, 9.1, and 10.1, build a regression model using:**
+
+**1. Stepwise regression**
+
+**2. Lasso**
+
+**3. Elastic net**
+
+**For Parts 2 and 3, remember to scale the data first – otherwise, the regression coefficients will be on different scales and the constraint won’t have the desired effect.For Parts 2 and 3, use the glmnet function in R. **
+
+##STEPWISE REGRESSION
+
+First, I loaded the required libraries. 
+
+```{r load libraries}
+
+library(corrplot) #for correlation plot
+library (caret) #for cross-validation
+library(MASS) #for stepwise regression
+library (leaps)
+library (glmnet)
+
+```
+
+Next, I loaded the Crimes data and printed a sample and summary of the data. The summary of Crime column is to be noted.
+
+```{r load data}
+
+#setting the seed so that results are the same at every run
+set.seed(101) 
+
+#loading data
+crimedata <- read.delim("data_11.1/uscrime.txt")
+
+#quick glance at the data
+head(crimedata)
+
+#basic stats of the temps data
+summary(crimedata)
+
+```
+
+Before I jumped into models, I checked the pearson correlation matrix of the Crimes data. Value is 1 and -1 indicate positive and negative correlation where 0 indicates no correlation. The last column was of interest where correlation of Crime column with each predictor was given. Po1, Po2, Wealth and Prob showed some correlation to Crime column. The models built below tested these correlations further. 
+
+```{r pearson correlation matrix}
+
+#pearson correlation matrix 
+corrmat <- cor(crimedata)
+round(corrmat, 2)
+
+#plotting the correlation matrix
+corrplot(corrmat, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
+
+```
+
+We should scale the data to ensure that the variables are in the same range and results are not biased by the scale. 
+
+```{r scaling}
+
+out <- c("So", "Crime") #keeping the binary variable out of the scaling
+newdata <- crimedata[,!(names(crimedata) %in% out)]
+scaled_data <- scale(newdata)
+
+#binding data back together
+scaled_data <- cbind(scaled_data, crimedata[,out])
+head(scaled_data)
+```
+
+Now, I was ready to jump into the stepwise regression modeling. I first used the traincontrol and train functions and then I tried it with the StepAIC function. 
+
+The results from the train function show 6 variables that are selected for the final model. 
+
+```{r stepwise with train}
+
+set.seed(101)
+control <- trainControl(method = "repeatedcv", number = 5, repeats = 5)
+
+step_reg <- train(Crime~., data = scaled_data, method = "leapSeq",  tuneGrid = data.frame(nvmax = 1:15), trControl = control)
+
+step_reg$results
+
+step_reg$bestTune
+
+summary(step_reg$finalModel)
+
+```
+
+I then built a regression model using these 6 variables.
+
+```{r regression 6 var}
+
+model1 <- lm(Crime~ M+Ed+Po1+U2+Ineq+Prob, data = scaled_data)
+summary(model1)
+AIC(model1)
+BIC(model1)
+
+```
+
+The model clearly showed thay all 6 variables were significant indicating that the stepwise process worked well. The R-sq value of the model was 76.5% which was good (not too high, not too low). 
+
+Next, I built the model with 80% training and 20% testing to confirm the results. The R-sq went down a little but overall the model performed the same as previous one except that it has lower AIC and BIC values.
+
+```{r model 1 Validation}
+
+#splitting data to training and validation
+set.seed(101)
+sample <- sample.int(n = nrow(scaled_data), size = floor(.80*nrow(scaled_data)), replace = F)
+train_data <- scaled_data[sample,]
+test_data  <- scaled_data[-sample,]
+nrow(train_data)
+nrow(test_data)
+
+#building model 2 on training data
+model2 <- lm(Crime~ M+Ed+Po1+U2+Ineq+Prob , data=train_data)
+summary(model2)
+
+AIC(model2)
+BIC(model2)
+
+#checking model performance on testing data
+eval <- predict(model2, test_data) 
+pred <- data.frame(cbind(actuals=test_data$Crime, predicteds=eval))
+cor(pred)
+head(pred)
+
+```
+
+Lastly, I used the stepAIC function from MASS package to perform the both ways stepwise regression. 
+
+```{r model 3}
+
+#building model 3
+model <- lm(Crime~. , data=scaled_data)
+model3 <- stepAIC(model, direction="both")
+model3$anova # display results
+summary(model3)
+
+AIC(model3)
+BIC(model3)
+
+```
+
+The AIC and BIC values of this model were very close to the first model we built based on 6 variables. This stepwise process selected 8 variables out of 15 (M.F and U1 were the two new addeed). TheR-sq is higher than the previous model but in the same range. AIC and BIC make this model comparable to the first one indicating the two new variables in this model didn't improve things much and we could use the first model with 6 variables.
+
+##LASSO REGRESSION
+
+Kicking off the Lasso regression with glmnet function using Alpha = 1.
+
+```{r lasso alpha 1}
+
+set.seed(101)
+lasso_reg = cv.glmnet(x=as.matrix(scaled_data[,-16]),
+                      y=as.matrix(scaled_data$Crime),
+                      alpha=1,
+                      nfolds = 5,
+                      type.measure="mse",
+                      family="gaussian")
+lasso_reg
+
+coef(lasso_reg, s=lasso_reg$lambda.min)
+
+plot(lasso_reg)
+
+```
+
+Lasso method suggested 11 variables with alpha = 1. I built the model using these 11 variables (first using all data and then using training & testing)
+
+```{r lasso model}
+
+model4 <- lm(Crime~ M+Ed+Po1+LF+M.F+NW+U1+U2+Ineq+Prob+So, data = scaled_data)
+summary(model4)
+AIC(model4)
+BIC(model4)
+
+#building model on training data
+model5 <- lm(Crime~ M+Ed+Po1+LF+M.F+NW+U1+U2+Ineq+Prob+So , data=train_data)
+summary(model5)
+
+AIC(model5)
+BIC(model5)
+
+#checking model performance on testing data
+eval <- predict(model5, test_data) 
+pred <- data.frame(cbind(actuals=test_data$Crime, predicteds=eval))
+cor(pred)
+head(pred)
+
+```
+
+Model with full data and training data (80%) had very similar R-sq but AIC value for the model trained on 80% of the data was lower indicating that model5 was better. 
+
+##Elastic Net Regression
+
+For elastic net, I used the same glmnet function but varied the alpha value b/w 1 (lasso) and 0 (ridge) to get the best variables combination.
+
+```{r different alpha elastic}
+set.seed(101)
+list <- numeric()
+
+#function to run the loop on
+best_alpha <- function(num, scaled_date){
+  alpha = num
+  elastic <- cv.glmnet(x=as.matrix(scaled_data[,-16]),
+                      y=as.matrix(scaled_data$Crime),
+                      alpha=alpha,
+                      nfolds = 5,
+                      type.measure="mse",
+                      family="gaussian")
+  list <<- cbind(list, c(alpha, min(elastic$cvm),elastic$lambda.min))
+}
+
+for (i in seq(0.01, 1, by=0.01)){
+  best_alpha(i, scaled_data)
+}
+
+#minimum MSE in the loop
+list[2,which.min(list[2,])]
+
+#which alpha value lowest MSE was at
+list[1, which.min(list[2,])]
+
+```
+
+The results of the loop from 0.01 to 1 in 0.01 intervals of alpha showed that the best alpha with minumum MSE was 0.49. I built the Elasti net with this alpha to get the variables list.
+
+```{r elastic 0.49}
+
+elastic_final <- cv.glmnet(x=as.matrix(scaled_data[,-16]),
+                      y=as.matrix(scaled_data$Crime),
+                      alpha=0.49,
+                      nfolds = 5,
+                      type.measure="mse",
+                      family="gaussian")
+
+coef(elastic_final, s=elastic_final$lambda.min)
+
+plot(elastic_final)
+
+```
+
+The elastic net revealed 13 variables. I built the regression model on these variables.
+
+```{r elastic regression}
+
+model6 <- lm(Crime~ M+Ed+Po1+Po2+M.F+Pop+NW+U1+U2+Wealth+Ineq+Prob+So, data = scaled_data)
+summary(model6)
+AIC(model6)
+BIC(model6)
+
+#building model on training data
+model7 <- lm(Crime~ M+Ed+Po1+Po2+M.F+Pop+NW+U1+U2+Wealth+Ineq+Prob+So, data=train_data)
+summary(model7)
+
+AIC(model7)
+BIC(model7)
+
+#checking model performance on testing data
+eval <- predict(model7, test_data) 
+pred <- data.frame(cbind(actuals=test_data$Crime, predicteds=eval))
+cor(pred)
+head(pred)
+
+```
+
+Unsurprisingly, models based on 13 variables have higher R-sq because there could be overfitting here due to small amount of data. I would go with models 2 or 3 instead due to simplicity because they use less variables(6 and 8) and offer similar R-sq (75% to 78%). 

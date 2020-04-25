@@ -1,0 +1,79 @@
+---
+title: "Week 9 Assignment - DOE and Probability Distributions"
+author: 'Omer Farooq (EDx ID: mfarooq4)'
+date: "03/10/2020"
+output:
+  word_document:
+    toc: yes
+  pdf_document: default
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: cerulean
+    toc: yes
+---
+
+```{r setup,include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+# QUESTION 12.1
+**Describe a situation or problem from your job, everyday life, current events, etc., for which a design of experiments approach would be appropriate.**
+
+At my job at the T-Mobile HQ in the Seattle area, my team helps build analytics products and analysis for our network supply chain team. The Supply chain team manages the planning, procurement and logistics of getting the right equipment (radios, antennas etc.) to the right locations so that T-Mobile's network could get built or improved. As part of our process, every week, we have to allocate the material from the available inventory to the short-list of high-priority projects from across regions in the US. The short-listed projects are almost always more than the available inventory. This would be a good design of experience candidate where several combinations of projects from different regions could be tested to make sure 1) the inventory consumption is maximized, 2) the regions get the equal share of projects and 3) the right mix of programs (new sites/towers, enhancements etc.) are picked. 
+
+There could be hundreds of combinations from the short-listed projects every week and a factorial design would be good tool to use based on different factors related to the projects (program project is part of, location, material need etc.). 
+
+***
+
+# QUESTION 12.2
+**To determine the value of 10 different yes/no features to the market value of a house (large yard, solar roof, etc.), a real estate agent plans to survey 50 potential buyers, showing a fictitious house with different combinations of features. To reduce the survey size, the agent wants to show just 16 fictitious houses. Use R’s FrF2 function (in the FrF2 package) to find a fractional factorial design for this experiment: what set of features should each of the 16 fictitious houses have? Note: the output of FrF2 is “1” (include) or “-1” (don’t include) for each feature.**
+
+The FrF2 function in the FrF2 package (https://www.rdocumentation.org/packages/FrF2/versions/2.1/topics/FrF2) provides an easy ability to do fractional fractorial design. I first built a string of 10 possible features of the house and then used the FrF2 function to run a fractional factorial design.
+
+```{r frac factorial design}
+
+library(FrF2)
+
+set.seed(101)
+
+features = c("openconcept", "steelappliances", "2cargarage", "largeyard", "solarroof","basement", "goodschools", "bigyard", "gym", "woodfloors")
+
+FrF2(nruns = 16, factor.names = features)
+
+```
+
+The output of the function provided different 16 designs based on 10 factors for the house. 
+
+***
+
+# QUESTION 13.1
+**For each of the following distributions, give an example of data that you would expect to follow this distribution (besides the examples already discussed in class).**
+
+* **a. Binomial**
+Binomial distribution is simply the probability of success or failure in an experiment that is repeated multiple times. Lottery is a good example. You either win a lottery or you don't. Let's say if probability of winning on the lottery ticket is 0.30 and 20 lottery tickets are purchases, binomial distribution can tell us the probability of winning at least 1 (or 2 or 3 etc.) lottery tickets. 
+
+* **b. Geometric**
+Geometric distribution represents number of failures (or successes) before the first success (or failure) in a series of trials. The number days before an accidents or incidents happens at a manufacturing facility would follow a geometric distribution. It would help answer that how many days without an accident (successes) before an accident (failure) happens. 
+
+* **c. Poisson**
+A Poisson distribution describes the probability discrete events ina time period where the average time between events is known, but the exact timing of events is random. Number of visitors to any website like Google etc. would follow poisson distribution. 
+
+* **d. Exponential**
+The time between the events mentioned above in Poisson process are described by the exponential distribution. The time between the visitors to a given website from the example above might follow an exponential distribution.
+
+* **e. Weibull**
+Weibull distribution helps with time to an event (success or failure). For example, life of a cell phone (or time before the user might have to switch cell phones due to cell phone completely wearing out) might follow a weibull distribution with k>1 given as failure rate would be expected to increase over time as the device ages. 
+
+***
+
+# QUESTION 13.2
+**In this problem you, can simulate a simplified airport security system at a busy airport. Passengers arrive according to a Poisson distribution with λ1 = 5 per minute (i.e., mean interarrival rate 1 = 0.2 minutes) to the ID/boarding-pass check queue, where there are several servers who each have exponential service time with mean rate 2 = 0.75 minutes. [Hint: model them as one block that has more than one resource.] After that, the passengers are assigned to the shortest of the several personal-check queues, where they go through the personal scanner (time is uniformly distributed between 0.5 minutes and 1 minute).**
+
+**Use the Arena software (PC users) or Python with SimPy (PC or Mac users) to build a simulation of the system, and then vary the number of ID/boarding-pass checkers and personal-check queues to determine how many are needed to keep average wait times below 15 minutes. [If you’re using SimPy, or if you have access to a non-student version of Arena, you can use λ1 = 50 to simulate a busier airport.]**
+
+I used the Python Simpy library to build a simulation for this question. Using the poisson lambda1 = 5 and trying multiple checker and scanner queues, I determined that 4 is the right number. For 3 queues, some simulation runs did give below 15 mins avg time but some were above. 4 came out to be the safe number. 
+
+

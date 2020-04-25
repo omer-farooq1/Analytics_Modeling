@@ -1,0 +1,196 @@
+---
+title: "Week 3 Assignment - Outliers and CUSUM Change Detection"
+author: 'Omer Farooq (EDx ID: mfarooq4)'
+date: "1/25/2020"
+output:
+  word_document:
+    toc: yes
+  pdf_document: default
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: cerulean
+    toc: yes
+---
+
+```{r setup,include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+# QUESTION 5.1
+**Using crime data from the file uscrime.txt (http://www.statsci.org/data/general/uscrime.txt, description at http://www.statsci.org/data/general/uscrime.html), test to see whether there are any outliers in the last column (number of crimes per 100,000 people). Use the grubbs.test function in the outliers package in R.**
+
+Loaded needed libraries.
+
+```{r load library}
+
+library(outliers)
+library(dplyr)
+library(ggpubr)
+library(grDevices)
+library(climtrends)
+
+```
+
+Next, loaded the US Crime data set and separated out the last column i.e. Crime per 100,000 people.
+
+```{r data load}
+
+set.seed(101) 
+
+#loading data
+my_data <- read.delim("data_5.1/uscrime.txt")
+head(my_data)
+
+#basic stats of the crime per 100k data
+crime_data <- my_data$Crime
+summary(crime_data)
+sd(crime_data)
+
+```
+
+The basic statistics of the Crime data showed that data has a long tail on the maximum value side given the max value is pretty distant from the 3rd quartile compared to how distant the min value is from the 1st quartile.
+
+Next, I applied different Grubbs tests to the Crime data to check outliers in the data. It is important to keep in mind that Grubbs test tests one outlier (or  two in some cases) on either extremes of the data. I applied the following test options:
+
+* Grubbs Test type 10 - tests one outlier. Opposite value TRUE or FALSE allows to check maximum and minimum value as outlier.
+* Grubbs Test type 11 - tests two outliers on both extremes. This test will only identify outliers if both data points are outliers. If one of the two is not, it will fail to reject the NULL hypothesis which is "Both Values are not outliers".
+* Grubbs Test type 20 - tests the most extreme and the next extreme value as outliers. Opposite parameter allows to test both ends. 
+
+Results of all these 6 tests were logged in a matrix and printed below.
+
+```{r grubbs test#1}
+
+#empty matrix to log results of grubbs test
+test_results <- matrix(NA, nrow=6, ncol=4)
+colnames(test_results) <- c("Test Method","Alternative Hypothesis","P-Value","Verdict")
+
+
+#different grubbs tests to check outliers on both extremes
+test1 <- grubbs.test(crime_data, type=10, opposite = FALSE, two.sided = FALSE)
+test_results[1,] <- c(test1$method, test1$alternative,round(test1$p.value, digit=3),"Potentially Outlier")
+
+test2 <- grubbs.test(crime_data, type=10, opposite = TRUE, two.sided = FALSE)
+test_results[2,] <- c(test2$method, test2$alternative,round(test2$p.value,digit=3),"Not Outlier")
+
+test3 <- grubbs.test(crime_data, type=11, opposite = FALSE, two.sided = FALSE)
+test_results[3,] <- c(test3$method, test3$alternative,round(test3$p.value,digit=3),"Not Outlier")
+
+test4 <- grubbs.test(crime_data, type=11, opposite = TRUE, two.sided = FALSE)
+test_results[4,] <- c(test4$method, test4$alternative,round(test4$p.value,digit=3), "Not Outlier")
+
+#type 20 of grubbs test works only on 3-30 sample size. Selecting top 30 and then bottom 30 data points to use in this test. 
+sorted_data <- my_data[order(my_data$Crime),]
+topn30_data<-top_n(sorted_data,30)
+topn30_data<-topn30_data$Crime
+
+test5 <- grubbs.test(topn30_data, type=20, opposite = FALSE, two.sided = FALSE)
+test_results[5,] <- c(test5$method, test5$alternative,round(test5$p.value,digit=3), "Outlier")
+
+bottomn30_data<-top_n(sorted_data,-30)
+bottomn30_data<-bottomn30_data$Crime
+
+test6 <- grubbs.test(bottomn30_data, type=20, opposite = FALSE, two.sided = FALSE)
+test_results[6,] <- c(test6$method, test6$alternative,round(test6$p.value,digit=3), "Not Outlier")
+
+test_results
+```
+
+*Commentary on the Grubbs Test Results*
+
+* Row #1 indicated that highest value 1993 is possibly an outlier. P-Value needed to be less than 0.05 for NULL Hypothesis to be rejected and it's pretty close to it. 
+* Row #2 indicated that lowest value 342 is not an outlier given P-Value is high.
+* Rows #3 and 4 were not relevant because test type 11 checked for both values to be outliers at the same time and as rows 1 and 2 showed, only one of the two extreme values is an outlier, these tests were bound to fail and they did (as shownby high P-Values).
+* Row 5 and 6 used test type 20 with Top 30 and Bottom 30 rows of data to test 1st  and 2nd extreme data points. Using just 30 out of total rows affected the distribution of data so results of the test could be skewed but directionally it provided good insights. It showed that highest values 1969 and 1993 were outliers (very low P-Values). On the other hand, lowest values 342 and 373 ereot outliers (high P-Values).
+
+Grubbs test indicated at least 2 outliers (highest and 2nd highest value). But are there are two pending questions:
+
+* Are these results reliable? And,
+* Are there other outliers as well?
+
+First on reliability, Grubbs test assumes that data has normal distribution (ref: https://en.wikipedia.org/wiki/Grubbs%27s_test_for_outliers). We did not check this condition up front. I checked normality of the data to ensure that our results from the Grubbs test are reliable. 
+
+There are multiple ways of checking normality of data (ref: http://www.sthda.com/english/wiki/normality-test-in-r). SOme are visual and some based on tests. Let's look at several options below.
+
+
+```{r normality tests}
+
+#density plot
+ggdensity(crime_data,
+          main = "Density Plot",
+          xlab= "Crimes per 100,000 People")
+
+#Q-Q plot
+ggqqplot(crime_data,
+         main = "Q-Q Plot")
+
+#shapiro-wilk test
+shapiro.test(crime_data)
+```
+
+**Density Plot** showed similar trend to what we found from the basis statistics of the crime data i.e. data was normal for the most part except one side of the distribution. 
+
+**Q-Q plot** (quantile-quantile plot) draws the correlation between a given sample and the normal distribution. A 45-degree reference line is also plotted. It showed most points were within the normal distribution range except a few high value points (this was similar information to what Density plot showed). 
+
+Lastly, I checked the **Shaprio-Wilk Normality Test**. The P-Value was 0.0018 which is very low compared to 0.05, thus NULL hypothesis that data is normal is rejected. 
+
+I plotted the **boxplot** of the data as well to validate the information above and it presented similar insights. Data showed outliers on one extreme whcih aligned with the outcome of Grubbs tests.
+
+```{r box plot}
+
+#box plot to visually check outliers
+boxplot(crime_data,
+        main = "Crime per 100k people Boxplot",
+        ylab = "Crime per 100k People"
+        )
+```
+
+Given we saw portion of normal behavior with some outliers on one edge, there is some validty in the Grubbs test, though not 100% reliable but the outcome of the tests is mostly supported by the visual analysis above. 
+
+Secondly, Grubbs test only checks one or two points at a time, what about other possible outliers? I used a few more broader tests to check possible other outliers. 
+
+```{r additional tests}
+
+#values outside the boxplot
+boxplot.stats(crime_data)$out
+
+#outliers based on Z-Score test
+#ref: https://www.rdocumentation.org/packages/climtrends/versions/1.0.6/topics/FindOutliersZscore
+
+crime_data[FindOutliersZscore(crime_data, coef=2.5)]
+
+#Outliers based on the absolute deviation around the median
+#ref: https://www.rdocumentation.org/packages/climtrends/versions/1.0.6/topics/FindOutliersMAD
+
+crime_data[FindOutliersMAD(crime_data,coef = 3)] #coef=3, very conservative
+crime_data[FindOutliersMAD(crime_data,coef = 2.5)] #coef=2.5, moderately conservative
+crime_data[FindOutliersMAD(crime_data,coef = 2)] #coef=2, poorly conservative
+
+```
+
+The **Boxplot.stats** function returns the data points that were outside the extremes of the whiskers. It showed clearly that top 3 high value data points were returned to be outside the whisker extreme as outliers. 
+
+I then tried the **FindOutliersZscore** function from the climtrends package. Using the default coef of 2.5, the two highest points were returned as outliers (same as Grubbs tests). 
+
+Lastly, I tried the **FindOutliersMAD** function from the climTrends package. This function identified outliers based on MAD and coef values determined how convservative or open we wanted to be in outliers identification. All coef options identified outliers on the maximum end of the distribution with conversation coef identifying only two highest points and the other coef including a few more points as outliers. 
+
+***
+
+# QUESTION 6.1
+**Describe a situation or problem from your job, everyday life, current events, etc., for which a Change Detection model would be appropriate. Applying the CUSUM technique, how would you choose the critical value and the threshold?**
+
+At my job at the T-Mobile HQ in the Seattle area, my team helps get analytics products built for our procurement and supply chain teams. One of the key insights we provide to our organization is tracking of Key Performance Indictors (KPIs) and operational metrics. These measures keep the organizational leaders informed regarding the performance of the teams and whether performance towards key business goals is on track. Examples of these KPIs and metrics are **deal cycle time** (time between kick off of a deal negotiation and final contract signatures), **Key Supplier Performance Scores**, **Purchase Requisiton Approval Time**, **Material Fulfillment Cycle Time** (time between a project is allocated material to and material is picked in the warehouse and staged for shipping) etc. There are targets for each of these KPIs which teams track religiously. Teams would want to know quickly if a certain SLA or metric is slipping. CUSUM could be used to monitor these KPIs and detect when a change above or below the threshold. 
+
+The threshold for each KPI and metric would vary depending on the cost of not detecting early and false detection. Statistically speaking, typical critical value is half of standard deviation and threshold is set at 4 times the standard deviation (*source*: https://www.spcforexcel.com/knowledge/variable-control-charts/keeping-process-target-cusum-charts) . But as noted above, depending on the trade off between early detection and false alarm, the critical value and threshold could be adjusted. For example, material fulfillment cycle is critical (if material doesn't ship on-time, construction of the cellular network gets delayed) and C & T values for this KPI would be lower. Whereas deal cycle time has more wiggle room and C & T values for this measure would be relatively higher.  
+
+***
+
+# QUESTION 6.2
+* **1. Using July through October daily-high-temperature data for Atlanta for 1996 through 2015, use a CUSUM approach to identify when unofficial summer ends (i.e., when the weather starts cooling off) each year. You can get the data that you need from the file temps.txt or online, for example at http://www.iweathernet.com/atlanta-weather-records or https://www.wunderground.com/history/airport/KFTY/2015/7/1/CustomHistory.html . You can use R if you’d like, but it’s straightforward enough that an Excel spreadsheet can easily do the job too.**
+
+
+* **2. Use a CUSUM approach to make a judgment of whether Atlanta’s summer climate has gotten warmer in that time (and if so, when).**
+
+

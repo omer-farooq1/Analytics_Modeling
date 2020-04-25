@@ -1,0 +1,407 @@
+---
+title: "Week 7 Assignment - Advanced Regression"
+author: 'Omer Farooq (EDx ID: mfarooq4)'
+date: "02/25/2020"
+output:
+  word_document:
+    toc: yes
+  pdf_document: default
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: cerulean
+    toc: yes
+---
+
+```{r setup,include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+# QUESTION 10.1
+**Using the same crime data set uscrime.txt as in Questions 8.2 and 9.1, find the best model you can using**
+
+**(a) a regression tree model, and**
+
+**(b) a random forest model.**
+
+**In R, you can use the tree package or the rpart package, and the randomForest package. For each model, describe one or two qualitative takeaways you get from analyzing the results (i.e., don’t just stop when you have a good model, but interpret it too).**
+
+## Regression Tree Model
+
+Before I jumped into building the model, I summarized the strategy I took below:
+
+* 1. Build a regression tree based on full data using tree package.
+* 2. Check if Pruning is required and whether pruning any branches improves the full data tree model.
+* 3. Build a regression tree using cross validation.
+* 4. Check if pruning is required on the CV tree model.
+* 5. Use regression on branches of simpler tree 
+
+First, I loaded the Crime data.
+
+```{r load data}
+
+#setting the seed so that results are the same at every run
+set.seed(101) 
+
+#loading data
+crimedata <- read.delim("data_10.1/uscrime.txt")
+
+#quick glance at the data
+head(crimedata)
+
+```
+
+Before I jumped into building the regression tree, I ran a correlation matrix on the data to get a sense on predictors that are highly correlated. 
+
+```{r correlation of predictors}
+
+library(corrplot) #for correlation plot
+
+#pearson correlation matrix 
+corrmat <- cor(crimedata)
+round(corrmat, 2)
+
+#plotting the correlation matrix
+corrplot(corrmat, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 45)
+
+```
+
+I wrote a function to calculate R-Sq for the tree models first, so that we can use it repeatedly in the code later on.
+
+```{r r-squared function}
+
+rsquare_func <- function(y_hat, y){
+  Sum_Sq_Error <- sum((y_hat - y)^2)
+  Sum_sq_total <- sum((y-mean(y))^2)
+  r_sq <- 1 - Sum_Sq_Error/Sum_sq_total
+  return (r_sq)
+}
+
+```
+
+I then built the regression tree with all data. The output showed that this tree has 7 branches and the first split was done at Po1 which was not surprising given Po1 had the most correlation to Crime (from the pearson matrix above). The R-Sq of this model is 72% which was pretty high but there coud be overfitting going on here given we had on average 6 to 7 data points in each leaf. It was also not enough data points to perform regression on each leaf. 
+
+```{r reg tree full data}
+
+set.seed(101)
+
+#building regression tree with all data
+library(tree)
+tree1 <- tree(Crime~., data = crimedata)
+tree1
+summary(tree1)
+
+#plotting the tree
+plot(tree1)
+text(tree1)
+
+#R-Sq of the tree model
+rsquare_func(predict(tree1),crimedata$Crime)
+
+```
+
+I checked if pruning would improve this model. Plot of deviance of tree (it's a quality of fit measure for trees) vs number of terminal nodes (aka leaves) helped see if deviance stopped decreasing after certain number of leaves. Looking at the plot, It could be said that 4 leaves was a good point after which deviance decrease was not significant. 
+
+The pruned tree with 4 leaves had lower R-sq and slightly higher mean deviance compared to full 7 leaf tree. 
+
+```{r}
+
+#plotting deviation vs nodes
+plot(prune.tree(tree1)$size, prune.tree(tree1)$dev, type = "b")
+
+tree1_prune <- prune.tree(tree1, best = 4)
+tree1_prune
+summary(tree1_prune)
+
+
+#plotting the tree
+plot(tree1_prune)
+text(tree1_prune)
+
+#R-Sq of the tree model
+rsquare_func(predict(tree1_prune),crimedata$Crime)
+
+```
+
+I then built a tree with 10-fold cross-validation to see if a different pruning would help improve results. The deviance plot was all over the place. Error dropped and then got larger with more nodes. It's inconclusive. The deviance was actually larger than the one we had without CV. 
+
+```{r CV tree}
+
+tree2 <- cv.tree(tree1)
+plot(tree2$size, tree2$dev, type="b")
+
+```
+
+Then, I built a tree with 2 leaves only and performed regression on the data in those branches. The regression models had pretty high R-sq values for each branch. The second branch had only 1 significant factor which was not a indication of good model. Model on 1st branch is reasonable with 4 significant factors. 
+
+```{r regression on tree branches}
+
+#pruned tree with 2 nodes only
+set.seed(101)
+tree3 <- prune.tree(tree1, best = 2)
+summary(tree3)
+tree3$where
+
+plot(tree3)
+text(tree3)
+
+#r-sq 
+rsquare_func(predict(tree3),crimedata$Crime)
+
+#separating data for lin regression
+leaf1 <- crimedata[which(tree3$where == 2),]
+leaf2 <- crimedata[which(tree3$where == 3),]
+
+leaf1_reg <- lm(Crime~., data=leaf1)
+summary(leaf1_reg)
+
+
+leaf2_reg <- lm(Crime~., data=leaf2)
+summary(leaf2_reg)
+```
+
+Lastly, I repeated the process with 3 branches. This did not work since models for branch 2 and 3 had no siginificant factors. In a nutshell, regression tree had some success with regression on 2 branches and on pruned tree with 5 branches using all data. Due to the amount of data, there was overfitting in most of these models. 
+
+```{r regression on tree branches 3}
+
+#pruned tree with 2 nodes only
+set.seed(101)
+tree4 <- prune.tree(tree1, best = 3)
+summary(tree4)
+tree4$where
+
+plot(tree4)
+text(tree4)
+
+#r-sq 
+rsquare_func(predict(tree4),crimedata$Crime)
+
+#separating data for lin regression
+t4_leaf1 <- crimedata[which(tree4$where == 2),]
+t4_leaf2 <- crimedata[which(tree4$where == 5),]
+t4_leaf3 <- crimedata[which(tree4$where == 4),]
+
+t4_leaf1_reg <- lm(Crime~., data=t4_leaf1)
+summary(t4_leaf1_reg)
+
+
+t4_leaf2_reg <- lm(Crime~., data=t4_leaf2)
+summary(t4_leaf2_reg)
+
+t4_leaf3_reg <- lm(Crime~., data=t4_leaf3)
+summary(t4_leaf3_reg)
+
+```
+
+## Random Forest
+
+For random forest tree, I used the randomforest library. The function randomForest (ref: https://www.rdocumentation.org/packages/randomForest/versions/4.6-14/topics/randomForest) had a parameter for number of predictors to use in each tree. Give it was mentioned in the lectures that 1 + log (n) where n is the number of predictors is the ideal number to use, I stuck with that. Also, default number of trees in this function is 500, i stuck with that as well but tried a 1000 tree model too.
+
+```{r random forest}
+
+set.seed(101)
+
+library(randomForest)
+
+#number of predictors to use in each tree
+pred <- 1 + log(15)
+
+#random forest model using 1+log(n) predictors and 500 trees
+rand_forest <- randomForest(Crime~., data = crimedata, mtry = round(pred), importance=TRUE)
+rand_forest
+rand_forest$importance
+
+plot(rand_forest)
+
+#r-sq of the model
+rsquare_func(predict(rand_forest), crimedata$Crime)
+
+#random forest model using 1+log(n) predictors and 1000 trees
+rand_forest2 <- randomForest(Crime~., data = crimedata, mtry = round(pred), ntree=1000, importance=TRUE)
+rand_forest2
+rand_forest2$importance
+
+plot(rand_forest2)
+
+#r-sq of the model
+rsquare_func(predict(rand_forest2), crimedata$Crime)
+
+varImpPlot(rand_forest2)
+
+```
+
+The results of random forest tree seemed better than regression tree. The r-sq for both 500 and 1000 tree models was 40% and 43% which is low but also showed less over-fitting (professor had mentioned in the model quality lectures that 30-40% r-sq is more close to reality). The importance of predictors was shown in the Importance output of the model and higher values in both measures (%incMSE and incNodePurity) indicate how important that predictor was. Unsurprisingly, both graphs show that Po1 and po2 were most important with po1 being highest in the stack, which resemebles with the regression tree where 1st split was on po1. 
+
+***
+
+# QUESTION 10.2
+**Describe a situation or problem from your job, everyday life, current events, etc., for which a logistic regression model would be appropriate. List some (up to 5) predictors that you might use.**
+
+At my job at the T-Mobile HQ in the Seattle area, my team helps get analytics products built for our network supply chain team. This team manages the planning, procurement and logistics of getting the right equipment to the right locations so that T-Mobile's network could get built or improved. The equipment used to build or enhance the cellular network includes items like radios, antenna, cables, etc. This equipment is packaged together on pallets at the distribution center for each project according to the Bill of Material (BOM) of a project. This packaged material is called a kit. Kits are shipped from the distribution center to the market staging locations where the crew picks up the material to go complete the buid or enhancement on the celluar tower. 
+
+Often times, this kits is packaged incorrectly and is comprised. Which means either the quantities of equipment needed are incorrect or centain equipment is missing altogeter. This data is available in our data warehouse i.e. how many and which kits were compromised in the past. A  model could be built using this data to predict whether any kits for unpcoming projets could be comprimised (higher or lower probability). Based on this prediction, a closer attention could be paid to those kits in the Distribution Center to minimize the overall quantity of compromised kits. Some useful predicotrs for this model wold be:
+
+* Number of SKUs (equipments types) in a kit
+* Total quantity of SKUs in a kit
+* Number of pallets used for a kit
+* Equipment size disparity. If a kit has some equipment that is too large in size (like an antenna) and too small (like small cables), chances are higher that smaller size equipment would get lost or would be forgotten.
+* Average distance that has to be covered in the distribution center to pick the materials for a kit. High distance would increase chances of errors. 
+
+***
+
+# QUESTION 10.3
+**1. Using the GermanCredit data set germancredit.txt from http://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german / (description at http://archive.ics.uci.edu/ml/datasets/Statlog+%28German+Credit+Data%29 ), use logistic regression to find a good predictive model for whether credit applicants are good credit risks or not. Show your model (factors used and their coefficients), the software output, and the quality of fit. You can use the glm function in R. To get a logistic regression (logit) model on data where the response is either zero or one, use family=binomial(link=”logit”) in your glm function call.**
+
+**2. Because the model gives a result between 0 and 1, it requires setting a threshold probability to separate between “good” and “bad” answers. In this data set, they estimate that incorrectly identifying a bad customer as good, is 5 times worse than incorrectly classifying a good customer as bad. Determine a good threshold probability based on your model.**
+
+## Part 1 - Building Logistics Regression Model
+
+This part required demonstrating,
+
+* Building a model and showing what features were selected and how
+* Showing the model output 
+* Quality of fit
+
+First of all, I loaded the data.
+
+```{r load data 10.3}
+
+#setting the seed so that results are the same at every run
+set.seed(101) 
+
+#loading data
+germandata <- read.table("data_14.1/germancredit.txt", stringsAsFactors = FALSE, header = FALSE, sep = ",")
+
+#quick glance at the data
+head(germandata)
+
+```
+
+The response column V21 has 1 and 2 indicating bad and good.I converted that to 0 and 1 for use in the model. I splitted the data into training (80%) and testing (20%).
+
+```{r data prep}
+
+#replacing response values to 0 and 1 because 2 is bad and 1 is good. 
+germandata$V21[germandata$V21 == 2] <- 0
+head(germandata)
+
+#splitting data to train & test
+
+nrow(germandata)
+set.seed(101) #this ensures that same datasets are reproduced in the future.
+sample <- sample.int(n = nrow(germandata), size = floor(.80*nrow(germandata)), replace = F)
+germandata_train <- germandata[sample,]
+germandata_test <- germandata[-sample,]
+
+nrow(germandata_train)
+nrow(germandata_test)
+
+head(germandata_train)
+head(germandata_test)
+
+```
+
+I was now ready to build the first Logistic Regression model. I used all features to see what the outcome was. 
+
+The output of the model shows all the featues the model considered along with respective P-values indicating whether a feature was significant or not (significant if P-value was less than 0.05). Also worth noting, that each categorical value of a feature is considered separately (as a 0, 1 response for that value). 14 features were found to be significant. 
+
+```{r logit1}
+
+logit_full <- glm(V21~., family = binomial(link = "logit"), data = germandata_train)
+summary(logit_full)
+
+```
+
+I calculated the accuracy along with other quality measures of the model like ROC curve (area was 0.6745). I used a threshold of 0.5 (right in the middle) for this exercise. I will find a better threshold based on the cost next.
+
+```{r logit1 confusion matrix & ROC}
+
+library(caret)
+library(pROC)
+predictions <- predict(logit_full,newdata = germandata_test, type = "response")
+predictions_01 <- as.integer(predictions > 0.5)
+confusionMatrix(factor(germandata_test$V21, levels = c(1,0)),factor(predictions_01,levels = c(1,0)))
+
+AUC <- roc(germandata_test$V21,predictions_01)
+plot(AUC, main = "ROC Curve")
+AUC
+
+```
+
+Before I looked at the cost and better threshold, I wanted to make sure the model is good. I used stepwise method to select the features. 
+
+```{r stepwise selection} 
+
+stepwise <- step(logit_full)
+stepwise
+
+```
+
+The final model wasbuilt below with accuracy and AUC calculations. It showed that the accuracy had droppped a bit for this model compared to the one where we used all features. But the drop was very insignificant and the true positive and true negative were close. False positives (high cost) were actually the same. Thus, we could go ahead with this model. 
+
+```{r logit based on stepwise features}
+
+#final model
+logit_selected <- glm(formula = V21 ~ V1 + V2 + V3 + V4 + V5 + V6 + V7 + V8 + V9 + V13 + V14 + V16 + V20, 
+                      family = binomial(link = "logit"),
+                      data = germandata_train)
+
+summary(logit_selected)
+
+#model fit and accuracy
+steppredict <- predict(logit_selected,newdata = germandata_test, type = "response")
+steppredict_01 <- as.integer(steppredict > 0.5)
+confusionMatrix(factor(germandata_test$V21, levels = c(1,0)),factor(steppredict_01,levels = c(1,0)))
+AUC <- roc(germandata_test$V21,steppredict_01)
+plot(AUC, main = "ROC Curve")
+AUC
+
+```
+
+## Part 2 - Finding the right threshold
+
+I used a loop from 0.01 to 1 as thresholds to see which threshold had the lowest cost and lowest false positive ratio (false positive / false positive + true negative). Once I printed the table with the results, it was clear that I had to discard the first 7 reading false positive ratio was either NaN or 1. Looking for the lowest cost in the remaining data showed it to be 76 and lowest false positive ratio was 0.25. Unsurprisingly the cost for 0.25 ratio was also 76, thus the 0.28 threshold seemed the right threshold. 
+
+```{r threshold calc}
+
+results <- matrix(NA, nrow=100, ncol=4)
+colnames(results) <- c("threshold","Cost", "False Positive Ratio", "Accuracy")
+
+#looping on the model and documenting accuracy percentage
+for(i in 1:100){
+    threshold <- i/100
+    steppredict <- predict(logit_selected,newdata = germandata_test, type = "response")
+    steppredict <- as.integer(steppredict > threshold)
+    matrix <- confusionMatrix(factor(germandata_test$V21, levels = c(1,0)),factor(steppredict,levels = c(1,0)))
+    cost <- matrix$table[2,1] + 5*matrix$table[1,2]
+    ratio <- matrix$table[1,2] / (matrix$table[1,2] + matrix$table[2,2])
+    results[i,] <- c(threshold, cost, round(ratio, digits = 2), round(matrix$overall[1],digits = 2))
+}
+
+results
+
+#right threshold
+results_new <- results[8:100,]
+results_new
+
+results_new[which.min(results_new[,2]),2]
+results_new[which.min(results_new[,3]),3]
+
+```
+
+Final model fit measures for 0.28 threshold.
+
+```{r}
+
+final_predict <- predict(logit_selected,newdata = germandata_test, type = "response")
+final_predict_01 <- as.integer(final_predict > 0.28)
+confusionMatrix(factor(germandata_test$V21, levels = c(1,0)),factor(final_predict_01,levels = c(1,0)))
+AUC <- roc(germandata_test$V21,final_predict_01)
+plot(AUC, main = "ROC Curve")
+AUC
+
+```
+

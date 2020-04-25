@@ -1,0 +1,400 @@
+---
+title: "Homework 10 - Advanced Data Prep & Optimizations"
+author: 'Omer Farooq (EDx ID: mfarooq4)'
+date: "03/24/2020"
+output:
+  word_document:
+    toc: yes
+  pdf_document: default
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: cerulean
+    toc: yes
+---
+
+```{r setup,include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+# QUESTION 14.1
+**The breast cancer data set breast-cancer-wisconsin.data.txt from http://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/ (description at http://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Original%29 ) has missing values.**
+
+* **1. Use the mean/mode imputation method to impute values for the missing data.**
+* **2. Use regression to impute values for the missing data.**
+* **3. Use regression with perturbation to impute values for the missing data.**
+* **4. (Optional) Compare the results and quality of classification models (e.g., SVM, KNN) build using**
+  + **(1) the data sets from questions 1,2,3;**
+  + **(2) the data that remains after data points with missing values are removed; and**
+  + **(3) the data set when a binary variable is introduced to indicate missing values**
+
+First of all, I pulled the data in. 
+
+```{r load data}
+
+#setting the seed so that results are the same at every run
+set.seed(101) 
+
+#loading data
+cancer_data <- read.table("data_14.1/breast-cancer-wisconsin.data.txt", stringsAsFactors = FALSE, header = FALSE, sep = ",")
+
+
+#quick glance at the data
+head(cancer_data)
+
+```
+
+I did some basic checks to see where missing data was and how much data is missing
+
+```{r missing data checks}
+
+#checking how many values are missing and where
+colSums(cancer_data == '?')
+
+#showing the actual missing value rows
+cancer_data[cancer_data$V7=='?',]
+
+#percentage of data with missinf values
+100*nrow(cancer_data[cancer_data$V7=='?',])/nrow(cancer_data)
+
+
+```
+
+Above analysis shows that column V7 has 16 missing values (indicated by ?) and they make up 2.28% of the total data (which is less than 5%) making it Ok to apply missing data techniques. 
+
+##Imputation using Mode and Mean
+
+The mode of v7 column came out to be 1 and mean was 3.5.I replaced the missing values with these. It was interesting that these two very different values replaced the missing values. 
+
+```{r mean & mode imputation}
+
+#storing indices of missing values
+indices <- which(cancer_data$V7 == '?', arr.ind = T)
+indices
+
+#figure out the range of rest of the V7 data
+max(cancer_data[-indices,]$V7)
+min(cancer_data[-indices,]$V7)
+
+#calcuting mode of v7 column
+
+v7 <- cancer_data[-indices,'V7']
+uniq_v7<- unique(v7)
+mode <- as.numeric(uniq_v7[which.max(tabulate(match(v7, uniq_v7)))])
+mode
+
+
+#imputation using mode
+data_mode <- cancer_data
+data_mode[indices, 'V7'] <- mode
+
+#check
+colSums(data_mode == '?')
+data_mode[indices,]
+
+#calculating mean of v7 column
+mean <- mean(as.integer(cancer_data[-indices, 'V7']))
+mean
+
+#imputation using mean
+data_mean <- cancer_data
+data_mean[indices, 'V7'] <- as.integer(mean)
+
+#check
+colSums(data_mean == '?')
+data_mean[indices,]
+
+```
+
+##Imputation using Regression
+
+I first built a basic regression model to predict V7 column values and trained it on data without missing value indices (those are the ones we would predict later). I then used stepwise regression to ensure I use the best variables in my model. Predictions from this model became the imputations for the missing values.
+
+```{r regression imputation}
+
+#truncated data without missing values indices
+data_reg <- cancer_data[-indices, 2:10]
+
+#regression model
+model <- lm(V7 ~., data = data_reg)
+summary(model)
+
+#stepwise regression to find model with best variables
+step(model)
+new_model <- lm(V7 ~ V2 + V4 + V5 + V8, data = data_reg)
+summary(new_model)
+
+#regression predictions for missing value indices
+regress <- predict(new_model, cancer_data[indices,])
+regress
+
+#imputation using regression
+data_regres <- cancer_data
+data_regres[indices, 'V7'] <- regress
+data_regres$V7 <- as.integer(data_regres$V7)
+
+#making sure values stay within orginal range
+data_regres$V7[data_regres$V7 > 10] <- 10
+data_regres$V7[data_regres$V7 < 1] <- 1
+
+#check
+colSums(data_regres == '?')
+data_regres[indices,]
+
+```
+
+##Imputation using Regression Perturbation
+
+I used the rnorm function (https://www.rdocumentation.org/packages/compositions/versions/1.40-3/topics/rnorm) to createa normal distribution vector using the predicted values from regression model to come up with 
+
+```{r regression perturbation imputation}
+
+set.seed(101)
+data_reg_pert <- cancer_data
+
+#using normal distribution variation
+data_reg_pert[indices, 'V7'] <- rnorm(length(regress), regress, sd(regress))
+data_reg_pert$V7 <- as.integer(data_reg_pert$V7)
+
+#keeping data in the range
+data_reg_pert$V7[data_reg_pert$V7 > 10] <- 10
+data_reg_pert$V7[data_reg_pert$V7 < 1] <- 1
+
+#check
+colSums(data_reg_pert == '?')
+data_reg_pert[indices,]
+```
+
+##Classification Model (KKNN)
+
+Next, I used the KKNN model to check which of these datasets performed better. I started off with the data imputated with mode.
+
+```{r mode KKNN}
+
+library(kknn)
+
+#setting seed for consistent results
+set.seed(101)
+
+#creating training & test indices
+training <- sample(nrow(cancer_data), size = floor(nrow(cancer_data) * 0.75))
+test <- setdiff(1:nrow(cancer_data), training)
+
+data_mode$V7 <- as.integer(data_mode$V7)
+
+iter = 10
+
+KKNNmode <- matrix(NA, nrow=iter, ncol=2)
+colnames(KKNNmode) <- c("K-Value","Accuracy")
+
+#looping Ks on the model and documenting accuracy percentage
+for(i in 1:iter){
+    model_kknn <- kknn( V11~V2+V3+V4+V5+V6+V7+V8+V9+V10,
+                    data_mode[training,], 
+                    data_mode[test,],
+                    k=i,
+                    distance = 2,
+                    kernel = "optimal",
+                    scale= TRUE
+                    )
+    predictions <- predict(model_kknn,newdata = data_mode[test,2:10])
+    predictions01 <- as.integer(predictions+0.5)
+    KKNNmode[i,] <- c(i, sum(predictions01 == data_mode[test,11]) / nrow(data_mode[test,]))
+}
+
+KKNNmode
+
+```
+
+Next, I tried the model with data imputated with mean.
+
+```{r mean KKNN}
+
+#setting seed for consistent results
+set.seed(101)
+
+data_mean$V7 <- as.integer(data_mean$V7)
+
+iter = 10
+
+KKNNmean <- matrix(NA, nrow=iter, ncol=2)
+colnames(KKNNmean) <- c("K-Value","Accuracy")
+
+#looping Ks on the model and documenting accuracy percentage
+for(i in 1:iter){
+    model_kknn <- kknn( V11~V2+V3+V4+V5+V6+V7+V8+V9+V10,
+                    data_mean[training,], 
+                    data_mean[test,],
+                    k=i,
+                    distance = 2,
+                    kernel = "optimal",
+                    scale= TRUE
+                    )
+    predictions <- predict(model_kknn,newdata = data_mean[test,2:10])
+    predictions01 <- as.integer(predictions+0.5)
+    KKNNmean[i,] <- c(i, sum(predictions01 == data_mean[test,11]) / nrow(data_mean[test,]))
+}
+
+KKNNmean
+
+```
+
+The results for mean and mode imputated data were exactly the same. Next, i tried regression imputated data.
+
+```{r regression KKNN}
+
+#setting seed for consistent results
+set.seed(101)
+
+iter = 10
+
+KKNNreg <- matrix(NA, nrow=iter, ncol=2)
+colnames(KKNNreg) <- c("K-Value","Accuracy")
+
+#looping Ks on the model and documenting accuracy percentage
+for(i in 1:iter){
+    model_kknn <- kknn( V11~V2+V3+V4+V5+V6+V7+V8+V9+V10,
+                    data_regres[training,], 
+                    data_regres[test,],
+                    k=i,
+                    distance = 2,
+                    kernel = "optimal",
+                    scale= TRUE
+                    )
+    predictions <- predict(model_kknn,newdata = data_regres[test,2:10])
+    predictions01 <- as.integer(predictions+0.5)
+    KKNNreg[i,] <- c(i, sum(predictions01 == data_regres[test,11]) / nrow(data_regres[test,]))
+}
+
+KKNNreg
+
+```
+
+The accuracies changed a little but not significantly to call regression imputation better for this dataset. Next,I tried regression perturbation imputated data.
+
+```{r reg pert KKNN}
+
+#setting seed for consistent results
+set.seed(101)
+
+iter = 10
+
+KKNNregpert <- matrix(NA, nrow=iter, ncol=2)
+colnames(KKNNregpert) <- c("K-Value","Accuracy")
+
+#looping Ks on the model and documenting accuracy percentage
+for(i in 1:iter){
+    model_kknn <- kknn( V11~V2+V3+V4+V5+V6+V7+V8+V9+V10,
+                    data_reg_pert[training,], 
+                    data_reg_pert[test,],
+                    k=i,
+                    distance = 2,
+                    kernel = "optimal",
+                    scale= TRUE
+                    )
+    predictions <- predict(model_kknn,newdata = data_reg_pert[test,2:10])
+    predictions01 <- as.integer(predictions+0.5)
+    KKNNregpert[i,] <- c(i, sum(predictions01 == data_reg_pert[test,11]) / nrow(data_reg_pert[test,]))
+}
+
+KKNNregpert
+
+```
+
+Results did not change for perturbation data as well. I tried dropping missing values next.
+
+```{r drop values KKNN}
+
+#setting seed for consistent results
+set.seed(101)
+
+cancer_data$V7 <- as.integer(cancer_data$V7)
+
+cancer_data_drop <- cancer_data[-indices,]
+
+#creating training & test indices
+training_drop <- sample(nrow(cancer_data_drop), size = floor(nrow(cancer_data_drop) * 0.75))
+test_drop <- setdiff(1:nrow(cancer_data_drop), training)
+
+iter = 10
+
+KKNNdrop <- matrix(NA, nrow=iter, ncol=2)
+colnames(KKNNdrop) <- c("K-Value","Accuracy")
+
+#looping Ks on the model and documenting accuracy percentage
+for(i in 1:iter){
+    model_kknn <- kknn( V11~V2+V3+V4+V5+V6+V7+V8+V9+V10,
+                    cancer_data_drop[training_drop,], 
+                    cancer_data_drop[test_drop,],
+                    k=i,
+                    distance = 2,
+                    kernel = "optimal",
+                    scale= TRUE
+                    )
+    predictions <- predict(model_kknn,newdata = cancer_data_drop[test_drop,2:10])
+    predictions01 <- as.integer(predictions+0.5)
+    KKNNdrop[i,] <- c(i, sum(predictions01 == cancer_data_drop[test_drop,11]) / nrow(cancer_data_drop[test_drop,]))
+}
+
+KKNNdrop
+
+```
+
+
+The accuracy went up a little but on dataset after dropping missin values. This could be due to overfitting or very small amount of missing values. But the improvement is not very large nonetheless. Lastly, I tried data set with binary variable introduced.
+
+```{r bin var KKNN}
+
+#setting seed for consistent results
+set.seed(101)
+
+bin_data <- read.table("data_14.1/breast-cancer-wisconsin.data.txt", stringsAsFactors = FALSE, header = FALSE, sep = ",")
+
+#creating binary variable
+bin_data$V12[bin_data$V7 == "?"] <- 0
+bin_data$V12[bin_data$V7 != "?"] <- 1
+
+#creating new variable to accommodate for missing values
+bin_data$V13[bin_data$V7 == "?"] <- 0
+bin_data$V13[bin_data$V7 != "?"] <- as.integer(bin_data[-indices,]$V7)
+
+iter = 10
+
+KKNNbin <- matrix(NA, nrow=iter, ncol=2)
+colnames(KKNNbin) <- c("K-Value","Accuracy")
+
+#looping Ks on the model and documenting accuracy percentage
+for(i in 1:iter){
+    model_kknn <- kknn( V11~V2+V3+V4+V5+V6+V8+V9+V10+V12+V13,
+                    bin_data[training,], 
+                    bin_data[test,],
+                    k=i,
+                    distance = 2,
+                    kernel = "optimal",
+                    scale= TRUE
+                    )
+    predictions <- predict(model_kknn,newdata = bin_data[test,2:13])
+    predictions01 <- as.integer(predictions+0.5)
+    KKNNbin[i,] <- c(i, sum(predictions01 == bin_data[test,11]) / nrow(bin_data[test,]))
+}
+
+KKNNbin
+
+```
+
+Binary variable did not affect the accruacy much. As noted above, highest acccuracy waas obtained when missing values were dropped. 
+
+***
+
+# QUESTION 12.2
+**Describe a situation or problem from your job, everyday life, current events, etc., for which optimization would be appropriate. What data would you need?**
+
+Given the current world situation with the Covid-19 pandemic, I believe it's a good optimization problem to solve. The virus has a certain Ro value and as long as it stays above 1, virus continues to spread. We shut down the valve by social distancing and lock down and the number of cases drop. The number of patients needing hospitalization is a key data point to track b/c that determines supply and demand balance of hospital ICU beds and respirators needed for the incoming patients. If more patients keep coming in b/c the valve is not closed enough, hospitals would max their capacity and death rate would worsen. 
+
+Data we would need to track would be total confirmed positive cases, % of total positive cases needing hospitalization and ICU beds, mortality rate, Ro, and number of respirators in stockpile. 
+
+* Variables would be total confirmed cases, % needing hospitalization, total hospital capacity in terms of respirators and total distance traveled by a person on average (as a measure of social distancing)
+* constraints would be total capacity not exceeding current respirators on hand and respirators in stock, total confirmed cases not exceeding total population, number of positive cases needing hospitalization not exceeding hospital capacity (key constraint), total distance not being negative.
+* We would have to come up with an objective function that minimize the number of patients needing hospitalization.

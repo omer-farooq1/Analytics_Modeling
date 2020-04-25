@@ -1,0 +1,477 @@
+---
+title: "Week 2 Assignment - Validation Using SVM & KNN and K-Means Clustering"
+author: 'Omer Farooq (EDx ID: mfarooq4)'
+date: "1/20/2020"
+output:
+  word_document:
+    toc: yes
+  pdf_document: default
+  html_document:
+    df_print: paged
+    highlight: tango
+    theme: cerulean
+    toc: yes
+---
+
+```{r setup,include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+# QUESTION 3.1
+**Using the same data set (credit_card_data.txt or credit_card_data-headers.txt) as in Question 2.2, use the ksvm or kknn function to find a good classifier:**
+
+Loading all needed libraries first. 
+
+```{r libraries}
+
+library(kernlab)
+library(kknn)
+library(caret)
+library(ggplot2)
+library(reshape2)
+
+```
+
+* **(a) using cross-validation (do this for the k-nearest-neighbors model; SVM is optional)**
+
+I tried cross-validation for both KKNN and SVM models to see how results compared. I loaded the data and split it into 80% training & 20% testing data sets. For cross-validation, I trained the model on training dataset first and then used the testing data set to check the performance of the selected model. 
+
+```{r data partitioning}
+
+#loading data
+my_data <- read.delim("data_3.1/credit_card_data-headers.txt")
+nrow(my_data)
+
+#Setting seed early on so that same data sets are reproduced in the future
+set.seed(101) 
+
+#splitting data to training and validation
+sample <- sample.int(n = nrow(my_data), size = floor(.80*nrow(my_data)), replace = F)
+train_data <- my_data[sample,]
+test_data  <- my_data[-sample,]
+
+nrow(train_data)
+nrow(test_data)
+
+head(train_data)
+
+```
+
+There were couple of options to do cross-validation for KKNN model - TRAIN.KKNN or CV.KKNN. According to the R Documentation (https://www.rdocumentation.org/packages/kknn/versions/1.3.1/topics/train.kknn) Train.kknn performs leave-one-out cross-validation and is computationally very efficient. On the other hand, cv.kknn performs k-fold cross-validation and is generally slower and does not yet contain the test of different models. Due to this reason, I went with train.kknn function. 
+
+Train.kknn has the functionality to take a vector of different kernel options and try out different k values as well. This makes this function very handy. 
+
+```{r KKNN CV}
+
+kknn_cv <- train.kknn(R1~., 
+                      #using the 80% partioned training data for cross-validation
+                      train_data, 
+                      
+                      #trying out upto 100 K values
+                      kmax = 100, 
+                      
+                      #trying out all kernel options
+                      kernel = c("optimal","rectangular","triangular","epanechnikov","biweight","triweight","cos","inv", "gaussian", "rank"),
+                      
+                      #scaling data
+                      scale =TRUE
+                      )
+
+#plotting output of the model
+plot(kknn_cv)
+
+#variables for best kernel and best K value from the model
+kernel <- kknn_cv$best.parameters$kernel
+bestk <- kknn_cv$best.parameters$k
+title(sprintf("Leave-One-Out CV for KNN, Best Kernel = %s, Best K Value = %s", kernel, bestk))
+
+#printing the model output
+kknn_cv
+```
+
+Above plot showed the performance of different kernels for different K values. The output object had a suggestion that biweight kernel is the best performant and the best K value is 70. After leave-one-out cross validation on different models, the train function automatically trained the model on the full training data after a model and K selection had been made. 
+
+The below code compared the final biweight kernel model based in k=70 to the test data. The model showed an accuracy of 91.6% and seemed to be performing pretty well.
+
+```{r KKNN Perf}
+
+#comparing the model output with the test data
+predictions <- predict(kknn_cv,newdata = test_data[,1:10])
+
+#converting probabilities to 0 and 1 (0.5 and below to 0 and 0.5 and above to 1)
+predictions01 <- as.integer(predictions+0.5)
+
+#creating a confusion matrix and basic stats of the final model using test data set
+confusionMatrix(factor(test_data[,11], levels = c(1,0)),factor(predictions01,levels=c(1,0)))
+
+```
+
+Next, I tried the cross-validation training of KSVM model as well. KSVM function has an argument "Cross". A greater than 0 value of Cross argument in KSVM performs the k-fold validation of the training data. E.g. Cross=10 will perform 10 fold cross validation of the training data. Since it was mentioned in the lecture that K=10 for k-fold validation is common, I used that value as well.
+
+The code below tried several values of C for the KSVM model with 10 fold validation on training data set. 
+
+```{r KSVM CV}
+
+#range of C values to test
+TestCs <- c(10**(-10:10)) 
+
+iter = length(TestCs)
+
+#a blank matrix to record accuracies
+results <- matrix(NA, nrow=iter, ncol=2)
+colnames(results) <- c("Cvalue","Accuracy")
+
+#looping Cs on the model with cross-validation for 10 folds and documenting accuracy percentage
+for(i in 1:iter){
+    ksvm_cv <- ksvm( x = as.matrix(train_data[,1:10]),
+                    y = as.factor(train_data[,11]),
+                    type='C-svc',
+                    kernel= 'vanilladot',
+                    C=TestCs[[i]], 
+                    Cross = 10,
+                    scaled=TRUE
+                    )
+    predictions <- predict(ksvm_cv,newdata = test_data[,1:10])
+    results[i,] <- c(TestCs[[i]], sum(predictions == test_data[,11]) / nrow(test_data))
+}
+
+results
+
+```
+
+Based on the accuracy measure for several C values, it appeared that C=100 to C=100,000 have the same accuracy. Thus, I picked the lower C=100 moving forward with this analysis. 
+
+Next, I tried several non-linear kernels as well with C=100 and Cross=10. 
+
+```{r KSVM different kernels}
+
+#different kernels to try
+kernels <- c('rbfdot','polydot','tanhdot','laplacedot','besseldot','anovadot','splinedot') 
+
+iter = length(kernels)
+
+#matrix to record accuracies for different kernels
+kernel_results <- matrix(NA, nrow=iter, ncol=2)
+colnames(kernel_results) <- c("Kernel","Accuracy")
+
+#looping different kernel on the model and documenting accuracy percentage for C=100
+for(i in 1:iter){
+    ksvm_kernels <- ksvm( x = as.matrix(train_data[,1:10]),
+                    y = as.factor(train_data[,11]),
+                    type='C-svc',
+                    kernel= kernels[[i]],
+                    C=100,
+                    Cross=10,
+                    scaled=TRUE
+                    )
+    predc100 <- predict(ksvm_kernels,newdata = test_data[,1:10])
+    kernel_results[i,] <- c(kernels[[i]], 
+                            sum(predc100 == test_data[,11]) / nrow(test_data))
+}
+
+kernel_results
+
+```
+
+Results of above code revealed that highest accuracy was 92.37% which was the same as linear kernel. Thus, I could safely stick to linear kernel, C=100 and Cross=10 for our final KSVM model. 
+
+The code below trained the final model with training data and checked its accuracy on test data.The model achieves an accuracy of 92.37%.
+
+```{r final ksvm}
+
+#final KSVM model with 10 fold cross validation.
+ksvm_cv <- ksvm( x = as.matrix(train_data[,1:10]),
+                    y = as.factor(train_data[,11]),
+                    type='C-svc',
+                    kernel= 'vanilladot',
+                    C=100,
+                    Cross = 10,
+                    scaled=TRUE
+                    )
+
+#testing the model on training data set
+final_predictions <- predict(ksvm_cv,newdata = test_data[,1:10])
+confusionMatrix(factor(test_data[,11], levels = c(1,0)),final_predictions)
+
+```
+
+* **(b) splitting the data into training, validation, and test data sets (pick either KNN or SVM; the other is optional).**
+
+For this part of the homework, I split the total data set into 3 parts - training (60%), validation (20%) and test (20%).
+
+```{r training/validation/testing data sets}
+
+sections = c(train = .6, test = .2, validate = .2)
+
+sec = sample(cut(seq(nrow(my_data)), 
+                 nrow(my_data)*cumsum(c(0,sections)), 
+                 labels = names(sections)))
+
+new_data = split(my_data, sec)
+
+nrow(new_data$train)
+nrow(new_data$validate)
+nrow(new_data$test)
+```
+
+Next, I used the training dataset to test several C values for the KSVM model and checked the performance of all models on validation data set.
+
+```{r ksvm}
+
+#range of C values to test
+TestCs <- c(10**(-10:10)) 
+
+iter = length(TestCs)
+
+#a blank matrix to record accuracies
+results_new <- matrix(NA, nrow=iter, ncol=2)
+colnames(results_new) <- c("Cvalue","Accuracy")
+
+#looping Cs on the model using training data set and documenting accuracy percentage
+for(i in 1:iter){
+    ksvm_train <- ksvm( x = as.matrix(new_data$train[,1:10]),
+                    y = as.factor(new_data$train[,11]),
+                    type='C-svc',
+                    kernel= 'vanilladot',
+                    C=TestCs[[i]],
+                    scaled=TRUE
+                    )
+    
+    #checking models' performance on validation data
+    predictions_new <- predict(ksvm_train,newdata = new_data$validate[,1:10])
+    results_new[i,] <- c(TestCs[[i]], sum(predictions_new == new_data$validate[,11]) / nrow(new_data$validate))
+}
+
+results_new
+
+```
+
+As before, C=100 came out to be a good C values with 87.02% accuracy. Next, I trained the model with C=100 and checked its performance on testing daa set. The model showed the same 87.02% accuracy. 
+
+```{r}
+
+#building final model using C=100
+ksvm_train_final <- ksvm( x = as.matrix(new_data$train[,1:10]),
+                    y = as.factor(new_data$train[,11]),
+                    type='C-svc',
+                    kernel= 'vanilladot',
+                    C=100,
+                    scaled=TRUE
+                    )
+
+#checking performance of the model on test data
+predictions_final <- predict(ksvm_train_final,newdata = new_data$test[,1:10])
+confusionMatrix(factor(new_data$test[,11], levels = c(1,0)),predictions_final)
+
+```
+
+I also used the 3 data sets on KKNN model. I checked the KKNN model for 100 K values using training data set and checked performance on validation data. 
+
+```{r}
+iter = 100
+
+KKNNresults <- matrix(NA, nrow=iter, ncol=2)
+colnames(results) <- c("K-Value","Accuracy")
+
+#looping Ks on the model on training data and documenting accuracy percentage
+for(i in 1:iter){
+    model_kknn <- kknn( R1~.,
+                    new_data$train, 
+                    new_data$validate,
+                    k=i,
+                    distance = 2,
+                    kernel = "optimal",
+                    scale= TRUE
+                    )
+    predictions_knn <- predict(model_kknn,newdata = new_data$validate[,1:10])
+    predictions_knn_01 <- as.integer(predictions_knn+0.5)
+    KKNNresults[i,] <- c(i, sum(predictions_knn_01 == new_data$validate[,11]) / nrow(new_data$validate))
+}
+
+KKNNresults
+
+plot(KKNNresults)
+kmax <- max(KKNNresults[,2])
+kwhich <- which.max(KKNNresults[,2])
+title(sprintf("Different K-Values, Best Accuracy = %s, Best K = %s", kmax, kwhich))
+
+```
+
+This helped determine the best k = 35 which I used to build the final model using training data set and checked its performance on testing data which showed 86.26% accuracy.
+
+```{r}
+
+#building final KKNN modelbased on K=35 and using train and test data
+model_kknn_final <- kknn( R1~.,
+                    new_data$train, 
+                    new_data$test,
+                    k=35,
+                    distance = 2,
+                    kernel = "optimal",
+                    scale= TRUE
+                    )
+
+#assessing model performance with test data
+predictions_knn_final <- predict(model_kknn_final,newdata = new_data$test[,1:10])
+predictions_knn_final_01 <- as.integer(predictions_knn_final+0.5)
+confusionMatrix(factor(new_data$test[,11], levels = c(1,0)),factor(predictions_knn_final_01,levels=c(1,0)))
+
+```
+
+# QUESTION 4.1
+**Describe a situation or problem from your job, everyday life, current events, etc., for which a clustering model would be appropriate. List some (up to 5) predictors that you might use.**
+
+At my job at the T-Mobile HQ in the Seattle area, my team helps get analytics products built for our procurement and supply chain teams. One of the key insights we provide to our network supply chain organization is the location of the new local warehouses (called Market Staging Locations - MSLs). Our supply chain organization supports the planning, procurement, warehousing and logistics of materials needed to build out and enchance T-Mobile's wireless network. The MSLs are the small warehouses closer to the cities where the materials are shipped from the larger regional distribution center. The material is then issued out to the general contractors for build-out at the actual tower location. 
+
+The MSLs need to be continuously optimized with the upcoming build schedule of the tower locations. Some MSLs are closed down and new locations, closer to where high build activity is expected, are set up. This is a good clustering problem where clusters and cluster centers would indicate a good location for the new MSLs. 
+
+Further details are given below:
+
+* **Total features (columns) available:** 100+
+* **Why is this important?** A timely supply of network gear and materials is extremely important to build out or enhance T-Mobile's wireless network. The Market Staging Locations play a pivotal role in the supply chain. 
+* **Predictors Useful for the Model:**
+  + **Planned Tower Sites** - There are a few predictors available in the data which tell us about the upcoming demand of how many new tower locations are expected to be built or enhanced. Where those locations will be and when is the build scheduled to start. 
+  + **Bill of Material**- Each planned tower site has an associated Bill of Material (BOM). BOM tells us exactly which material is needed and how much of each material is needed. This helps determine the total expected material need.
+  + **SKU Details** - Details of each SKU included in the BOM like part size, weight, dimensions etc. This helps determine the pallet requirements, which ultimately helps with storage capacity analysis. 
+  + **Prioritization** - Each planned tower location has a prioritization score assigned by the engineering team. This helps determine prioritization of material among locations planned within the same time frame.
+
+***
+
+# QUESTION 4.2
+**The iris data set iris.txt contains 150 data points, each with four predictor variables and one categorical response. The predictors are the width and length of the sepal and petal of flowers and the response is the type of flower. The data is available from the R library datasets and can be accessed with iris once the library is loaded. It is also available at the UCI Machine Learning Repository (https://archive.ics.uci.edu/ml/datasets/Iris ). *The response values are only given to see how well a specific method performed and should not be used to build the model*.**
+**Use the R function kmeans to cluster the points as well as possible. Report the best combination of predictors, your suggested value of k, and how well your best clustering predicts flower type.**
+
+First of all, I loaded the **iris** data set and applied scaling on the 4 predictors. 
+
+```{r iris data}
+
+#loading data
+iris <- read.table(file = "data_4.2/iris.txt", row.names = 1)
+summary(iris)
+
+#scaling the predictors
+iris_scale <- scale(iris[,1:4])
+head(iris_scale)
+```
+
+Next step, I plotted the data points against 4 different combinations of 2 sets of predictors i.e sepal length vs sepal width, petal length vs petal width, petal length vs sepal width and sepal length vs petal width. Goal of this exercise wasto visually check how the data points formed clusters, if any, and got indication on which predictors might be useful in the K-means algorithm.
+
+```{r plotting iris}
+
+#plotting different 2 predictor combinations to visually see clusters
+ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species))+geom_point()
+ggplot(iris, aes(Petal.Length, Petal.Width, color = Species))+geom_point()
+ggplot(iris, aes(Petal.Length, Sepal.Width, color = Species))+geom_point()
+ggplot(iris, aes(Sepal.Length, Petal.Width, color = Species))+geom_point()
+
+
+```
+
+Above plots clearly showed that petal width and petal length or any combination that involved petal width or petal length formed better clusters. But this hypothesis had to be tested systematically. 
+
+Following code checked all 15 combinations of predictors for 1 to 10 centers for each combination and logged the total withinss (total sum of squares) in a matrix. Total withinss is the measure of compactness of clusters. Smaller value of total withinss indicates better clusters. 
+
+```{r}
+k.max <- 10
+
+combs <- list(c(1,2,3,4),c(1,2,3),c(1,2,4),c(1,3,4),c(2,3,4),c(1,2),c(1,3),c(1,4),c(2,3),c(2,4),c(3,4),c(1),c(2),c(3),c(4))
+
+predictors <- c(1234, 123, 124, 134, 234, 12, 13, 14, 23, 24, 34, 1, 2, 3, 4)
+
+iter = 15
+
+kmeans_results <- matrix(NA, nrow=iter, ncol=11)
+colnames(kmeans_results) <- c("Predictors","K=1","K=2","K=3","K=4","K=5","K=6","K=7","K=8","K=9","K=10")
+
+
+for(i in 1:iter){
+  #print(combs[[i]])
+  kmeans_model <- sapply(1:k.max,function(k){kmeans(iris_scale[,combs[[i]]], k, nstart = 25, iter.max = 20)$tot.withinss})
+  #print(round(kmeans_model,digits=2))
+  kmeans_results[i,] <- c(predictors[[i]],round(kmeans_model,digits=2))
+  
+}
+
+kmeans_results
+```
+
+From the table above, I needed to find two answers:
+
+* What is the best number of centers for our analysis (K)? 
+* What is the best combination of predictors?
+
+I plotted the total withinss of each predictors combination against K=1 to 10 values to get elbow diagrams for each predictors combination. This  helped determine the best K. 
+
+```{r}
+
+#converting table to dataframe and converting predictor column to characters
+kmeans_results_df<- as.data.frame(kmeans_results)
+kmeans_results_df$Predictors <- as.character(kmeans_results_df$Predictors)
+
+#resharing the dataframe
+new_df <- melt(kmeans_results_df, id.vars="Predictors", value.name="value", variable.name="KValue")
+
+#plotting
+ggplot(data=new_df, aes(x=KValue, y=value, group = Predictors, colour = Predictors)) +
+    geom_line() +
+    geom_point( size=4, shape=21, fill="white")
+
+
+```
+
+Looking at the elbow diagrams above, it appeared that K=3 was a good number. The total sum of squares did not drop significantly for K>3 (could also be seen in the values in the table above).
+
+Next, I separated out the K=3 total withinss values for all predictors combinations and sorted them low to high. Lowest value of total withinss indicated the best predictor combinations. 
+
+Unsurprisingly, the 3 lowest total withinss values were for predicotors 3, 4 and (3,4). Predictor 3 is Sepal length and 4 is petal width indicating these two as the best predictors for our analysis. 
+
+```{r}
+kmeans_results_new <- kmeans_results[,c(1,4)]
+kmeans_results_new[order(kmeans_results_new[,2]),]
+```
+
+Now that I had answers to both key questions i.e. ideal number of centers of 3 and best predictors being petal length and petal width, I tried the Kmeans algorithm with these parameters to find the clusters. 
+
+I used nstart = 25 meaning 25 different random starting assignments were tried and then the one with lowest total withinss was selected. Thus, a sligthly higher nstart was better. 
+
+I picked iter.max = 20. Default value is 10 but I doubled it to allow for more iterations to ensure accuracy. 
+
+```{r building KMeans Model}
+
+plpw_cluster <- kmeans(iris_scale[,3:4],3,nstart = 25, iter.max=20)
+table(plpw_cluster$cluster,iris$Species)
+
+```
+
+Above shown above, Using both petal length and petal width as predictors got an accuracy of 144/ 150 = 96%.
+
+I then tried the model with only petal length as the predictor as well and got an accuracy of 142/ 150 = 94.6%
+
+```{r}
+
+pl_cluster <- kmeans(iris_scale[,3],3,nstart = 25, iter.max=20)
+table(pl_cluster$cluster,iris$Species)
+
+```
+
+Finally, I tried with only petal width as predictor and got an accuracy of 96%. This indicated that all 3 models with petal length, petal width or both used as predictors were very accurate and provided good clusters. 
+
+```{r}
+
+pw_cluster <- kmeans(iris_scale[,4],3,nstart = 25, iter.max=20)
+table(pw_cluster$cluster,iris$Species)
+
+```
+
+Just for reference, building the model with all 4 predictors dropped the accuracy to 125/150 = 83.3%. This confirmed that my selection of predicotrs was correct and it provided the best clustering of the iris data. 
+
+
+```{r}
+
+all4_cluster <- kmeans(iris_scale,3,nstart = 25, iter.max=20)
+table(all4_cluster$cluster,iris$Species)
+
+```
+

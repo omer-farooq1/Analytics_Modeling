@@ -1,0 +1,718 @@
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 1 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02497     4.0355E-04 .00852     .11501       3586    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3586    
+Entity 1.WaitTime                           .03270     .00778     .00000     .11405       3586    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3586    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3586    
+Entity 1.TotalTime                          .05767     .00796     .01003     .16959       3586    
+ID and boarding pass check.Queue.WaitingTi  .02770     .00766     .00000     .10440       3595    
+Scanner3.Queue.WaitingTime                  .00729     .00144     .00000     .07574        811    
+Scanner2.Queue.WaitingTime                  .00393     7.5648E-04 .00000     .04281       1682    
+Scanner1.Queue.WaitingTime                  .00473     .00127     .00000     .04372       1097    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                17.246     2.6418     .00000     45.000     9.0000    
+Resource 1.NumberBusy                       3.7274     .11416     .00000     4.0000     3.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .93187     .02854     .00000     1.0000     .75000    
+Scanner 1.NumberBusy                        1.1385     .08185     .00000     2.0000     1.0000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .56927     .04093     .00000     1.0000     .50000    
+Scanner 3.NumberBusy                        .83816     .02999     .00000     1.0000     1.0000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .83816     .02999     .00000     1.0000     1.0000    
+Scanner 2.NumberBusy                        1.7661     .02344     .00000     2.0000     2.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .88305     .01172     .00000     1.0000     1.0000    
+ID and boarding pass check.Queue.NumberInQ  8.2996     2.4434     .00000     37.000     .00000    
+Scanner3.Queue.NumberInQueue                .49282     .08143     .00000     6.0000     1.0000    
+Scanner2.Queue.NumberInQueue                .55143     .08937     .00000     7.0000     1.0000    
+Scanner1.Queue.NumberInQueue                .43204     .11615     .00000     7.0000     .00000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3595.0    
+Entity 1.NumberOut                          3586.0    
+Resource 1.NumberSeized                     3595.0    
+Resource 1.ScheduledUtilization             .93187    
+Scanner 1.NumberSeized                      1097.0    
+Scanner 1.ScheduledUtilization              .56927    
+Scanner 3.NumberSeized                      811.00    
+Scanner 3.ScheduledUtilization              .83816    
+Scanner 2.NumberSeized                      1682.0    
+Scanner 2.ScheduledUtilization              .88305    
+System.NumberOut                            3586.0    
+
+Beginning replication 2 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 2 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02478     3.4652E-04 .00845     .11882       3531    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3531    
+Entity 1.WaitTime                           .02835     .00888     .00000     .11998       3531    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3531    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3531    
+Entity 1.TotalTime                          .05313     .00910     .00872     .17159       3531    
+ID and boarding pass check.Queue.WaitingTi  .02414     .00870     .00000     .10624       3541    
+Scanner3.Queue.WaitingTime                  .00641     4.4958E-04 .00000     .03409        802    
+Scanner2.Queue.WaitingTime                  .00345     2.6615E-04 .00000     .01965       1686    
+Scanner1.Queue.WaitingTime                  .00416     7.1344E-04 .00000     .02539       1048    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                15.749     3.0845     .00000     41.000     24.000    
+Resource 1.NumberBusy                       3.6148     .14263     .00000     4.0000     4.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .90371     .03566     .00000     1.0000     1.0000    
+Scanner 1.NumberBusy                        1.0924     .07467     .00000     2.0000     2.0000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .54623     .03733     .00000     1.0000     1.0000    
+Scanner 3.NumberBusy                        .82896     .02482     .00000     1.0000     1.0000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .82896     .02482     .00000     1.0000     1.0000    
+Scanner 2.NumberBusy                        1.7658     .02514     .00000     2.0000     2.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .88292     .01257     .00000     1.0000     1.0000    
+ID and boarding pass check.Queue.NumberInQ  7.1699     2.8660     .00000     32.000     14.000    
+Scanner3.Queue.NumberInQueue                .42820     .02900     .00000     3.0000     .00000    
+Scanner2.Queue.NumberInQueue                .48525     .03523     .00000     3.0000     .00000    
+Scanner1.Queue.NumberInQueue                .36357     .06667     .00000     4.0000     1.0000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3555.0    
+Entity 1.NumberOut                          3531.0    
+Resource 1.NumberSeized                     3541.0    
+Resource 1.ScheduledUtilization             .90371    
+Scanner 1.NumberSeized                      1048.0    
+Scanner 1.ScheduledUtilization              .54623    
+Scanner 3.NumberSeized                      802.00    
+Scanner 3.ScheduledUtilization              .82896    
+Scanner 2.NumberSeized                      1686.0    
+Scanner 2.ScheduledUtilization              .88292    
+System.NumberOut                            3531.0    
+
+Beginning replication 3 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 3 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02455     4.0175E-04 .00853     .18314       3550    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3550    
+Entity 1.WaitTime                           .02501     (Corr)     .00000     .12523       3550    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3550    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3550    
+Entity 1.TotalTime                          .04956     (Corr)     .00900     .19478       3550    
+ID and boarding pass check.Queue.WaitingTi  .02040     (Corr)     .00000     .11243       3565    
+Scanner3.Queue.WaitingTime                  .00678     4.8889E-04 .00000     .04610        795    
+Scanner2.Queue.WaitingTime                  .00361     3.2796E-04 .00000     .03089       1676    
+Scanner1.Queue.WaitingTime                  .00455     4.9152E-04 .00000     .02939       1084    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                14.710     2.5677     .00000     48.000     17.000    
+Resource 1.NumberBusy                       3.5870     .13034     .00000     4.0000     4.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .89676     .03259     .00000     1.0000     1.0000    
+Scanner 1.NumberBusy                        1.1247     .06737     .00000     2.0000     2.0000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .56235     .03369     .00000     1.0000     1.0000    
+Scanner 3.NumberBusy                        .81649     .02568     .00000     1.0000     1.0000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .81649     .02568     .00000     1.0000     1.0000    
+Scanner 2.NumberBusy                        1.7515     .03202     .00000     2.0000     2.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .87575     .01601     .00000     1.0000     1.0000    
+ID and boarding pass check.Queue.NumberInQ  6.0629     2.3547     .00000     40.000     2.0000    
+Scanner3.Queue.NumberInQueue                .45031     .04647     .00000     4.0000     1.0000    
+Scanner2.Queue.NumberInQueue                .50511     .06043     .00000     5.0000     2.0000    
+Scanner1.Queue.NumberInQueue                .41265     .08263     .00000     5.0000     3.0000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3567.0    
+Entity 1.NumberOut                          3550.0    
+Resource 1.NumberSeized                     3565.0    
+Resource 1.ScheduledUtilization             .89676    
+Scanner 1.NumberSeized                      1084.0    
+Scanner 1.ScheduledUtilization              .56235    
+Scanner 3.NumberSeized                      795.00    
+Scanner 3.ScheduledUtilization              .81649    
+Scanner 2.NumberSeized                      1676.0    
+Scanner 2.ScheduledUtilization              .87575    
+System.NumberOut                            3550.0    
+
+Beginning replication 4 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 4 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02493     4.6155E-04 .00854     .11738       3559    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3559    
+Entity 1.WaitTime                           .03152     (Corr)     .00000     .11184       3559    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3559    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3559    
+Entity 1.TotalTime                          .05645     (Corr)     .00881     .18776       3559    
+ID and boarding pass check.Queue.WaitingTi  .02675     (Corr)     .00000     .10107       3564    
+Scanner3.Queue.WaitingTime                  .00675     6.7140E-04 .00000     .04211        789    
+Scanner2.Queue.WaitingTime                  .00367     3.9158E-04 .00000     .02503       1702    
+Scanner1.Queue.WaitingTime                  .00492     7.5545E-04 .00000     .02997       1069    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                16.746     2.8195     .00000     41.000     5.0000    
+Resource 1.NumberBusy                       3.6891     .11524     .00000     4.0000     4.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .92228     .02881     .00000     1.0000     1.0000    
+Scanner 1.NumberBusy                        1.1201     .08743     .00000     2.0000     .00000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .56006     .04371     .00000     1.0000     .00000    
+Scanner 3.NumberBusy                        .81967     .03288     .00000     1.0000     .00000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .81967     .03288     .00000     1.0000     .00000    
+Scanner 2.NumberBusy                        1.7694     .02381     .00000     2.0000     1.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .88472     .01191     .00000     1.0000     .50000    
+ID and boarding pass check.Queue.NumberInQ  7.9452     2.5923     .00000     33.000     .00000    
+Scanner3.Queue.NumberInQueue                .44402     .04662     .00000     3.0000     .00000    
+Scanner2.Queue.NumberInQueue                .52053     .05552     .00000     3.0000     .00000    
+Scanner1.Queue.NumberInQueue                .43838     .10132     .00000     4.0000     .00000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3564.0    
+Entity 1.NumberOut                          3559.0    
+Resource 1.NumberSeized                     3564.0    
+Resource 1.ScheduledUtilization             .92228    
+Scanner 1.NumberSeized                      1069.0    
+Scanner 1.ScheduledUtilization              .56006    
+Scanner 3.NumberSeized                      789.00    
+Scanner 3.ScheduledUtilization              .81967    
+Scanner 2.NumberSeized                      1702.0    
+Scanner 2.ScheduledUtilization              .88472    
+System.NumberOut                            3559.0    
+
+Beginning replication 5 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 5 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02482     4.7037E-04 .00835     .11985       3591    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3591    
+Entity 1.WaitTime                           .03052     .00925     .00000     .14867       3591    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3591    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3591    
+Entity 1.TotalTime                          .05534     .00944     .00870     .20538       3591    
+ID and boarding pass check.Queue.WaitingTi  .02625     .00917     .00000     .14565       3598    
+Scanner3.Queue.WaitingTime                  .00668     6.1055E-04 .00000     .04119        799    
+Scanner2.Queue.WaitingTime                  .00349     2.6158E-04 .00000     .02559       1701    
+Scanner1.Queue.WaitingTime                  .00399     6.7830E-04 .00000     .02342       1093    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                16.674     (Corr)     .00000     50.000     26.000    
+Resource 1.NumberBusy                       3.7041     (Corr)     .00000     4.0000     4.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .92605     (Corr)     .00000     1.0000     1.0000    
+Scanner 1.NumberBusy                        1.1325     (Corr)     .00000     2.0000     .00000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .56625     (Corr)     .00000     1.0000     .00000    
+Scanner 3.NumberBusy                        .83654     (Corr)     .00000     1.0000     .00000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .83654     (Corr)     .00000     1.0000     .00000    
+Scanner 2.NumberBusy                        1.7655     .02336     .00000     2.0000     2.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .88276     .01168     .00000     1.0000     1.0000    
+ID and boarding pass check.Queue.NumberInQ  7.9313     (Corr)     .00000     43.000     19.000    
+Scanner3.Queue.NumberInQueue                .44454     .03572     .00000     3.0000     .00000    
+Scanner2.Queue.NumberInQueue                .49576     .04268     .00000     4.0000     1.0000    
+Scanner1.Queue.NumberInQueue                .36381     (Corr)     .00000     4.0000     .00000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3617.0    
+Entity 1.NumberOut                          3591.0    
+Resource 1.NumberSeized                     3598.0    
+Resource 1.ScheduledUtilization             .92605    
+Scanner 1.NumberSeized                      1093.0    
+Scanner 1.ScheduledUtilization              .56625    
+Scanner 3.NumberSeized                      799.00    
+Scanner 3.ScheduledUtilization              .83654    
+Scanner 2.NumberSeized                      1701.0    
+Scanner 2.ScheduledUtilization              .88276    
+System.NumberOut                            3591.0    
+
+Beginning replication 6 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 6 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02500     4.7237E-04 .00843     .14299       3696    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3696    
+Entity 1.WaitTime                           .05782     (Corr)     .00000     .21619       3696    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3696    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3696    
+Entity 1.TotalTime                          .08282     (Corr)     .01048     .27199       3696    
+ID and boarding pass check.Queue.WaitingTi  .05265     (Corr)     .00000     .20637       3705    
+Scanner3.Queue.WaitingTime                  .00712     6.0610E-04 .00000     .04837        809    
+Scanner2.Queue.WaitingTime                  .00395     3.7587E-04 .00000     .02513       1710    
+Scanner1.Queue.WaitingTime                  .00528     6.3933E-04 .00000     .03102       1180    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                25.525     (Corr)     .00000     73.000     12.000    
+Resource 1.NumberBusy                       3.8683     .09250     .00000     4.0000     4.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .96709     .02313     .00000     1.0000     1.0000    
+Scanner 1.NumberBusy                        1.2243     .08510     .00000     2.0000     .00000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .61216     .04255     .00000     1.0000     .00000    
+Scanner 3.NumberBusy                        .83476     .03190     .00000     1.0000     1.0000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .83476     .03190     .00000     1.0000     1.0000    
+Scanner 2.NumberBusy                        1.7811     .03174     .00000     2.0000     2.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .89060     .01587     .00000     1.0000     1.0000    
+ID and boarding pass check.Queue.NumberInQ  16.255     (Corr)     .00000     63.000     3.0000    
+Scanner3.Queue.NumberInQueue                .47974     .04119     .00000     4.0000     1.0000    
+Scanner2.Queue.NumberInQueue                .56227     .05496     .00000     4.0000     1.0000    
+Scanner1.Queue.NumberInQueue                .51916     .07420     .00000     5.0000     .00000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3708.0    
+Entity 1.NumberOut                          3696.0    
+Resource 1.NumberSeized                     3705.0    
+Resource 1.ScheduledUtilization             .96709    
+Scanner 1.NumberSeized                      1180.0    
+Scanner 1.ScheduledUtilization              .61216    
+Scanner 3.NumberSeized                      809.00    
+Scanner 3.ScheduledUtilization              .83476    
+Scanner 2.NumberSeized                      1710.0    
+Scanner 2.ScheduledUtilization              .89060    
+System.NumberOut                            3696.0    
+
+Beginning replication 7 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 7 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02497     4.3396E-04 .00855     .12363       3599    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3599    
+Entity 1.WaitTime                           .03348     (Corr)     .00000     .12093       3599    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3599    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3599    
+Entity 1.TotalTime                          .05846     (Corr)     .00925     .16374       3599    
+ID and boarding pass check.Queue.WaitingTi  .02874     (Corr)     .00000     .11312       3607    
+Scanner3.Queue.WaitingTime                  .00673     7.2029E-04 .00000     .03517        810    
+Scanner2.Queue.WaitingTime                  .00367     4.2496E-04 .00000     .02162       1688    
+Scanner1.Queue.WaitingTime                  .00474     6.7660E-04 .00000     .02729       1104    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                17.549     (Corr)     .00000     50.000     8.0000    
+Resource 1.NumberBusy                       3.7433     (Corr)     .00000     4.0000     3.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .93583     (Corr)     .00000     1.0000     .75000    
+Scanner 1.NumberBusy                        1.1465     .08953     .00000     2.0000     .00000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .57328     .04476     .00000     1.0000     .00000    
+Scanner 3.NumberBusy                        .83743     .03054     .00000     1.0000     1.0000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .83743     .03054     .00000     1.0000     1.0000    
+Scanner 2.NumberBusy                        1.7750     .02158     .00000     2.0000     2.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .88752     .01079     .00000     1.0000     1.0000    
+ID and boarding pass check.Queue.NumberInQ  8.6396     (Corr)     .00000     39.000     .00000    
+Scanner3.Queue.NumberInQueue                .45419     .05103     .00000     3.0000     1.0000    
+Scanner2.Queue.NumberInQueue                .51728     .05073     .00000     3.0000     1.0000    
+Scanner1.Queue.NumberInQueue                .43614     .08716     .00000     4.0000     .00000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3607.0    
+Entity 1.NumberOut                          3599.0    
+Resource 1.NumberSeized                     3607.0    
+Resource 1.ScheduledUtilization             .93583    
+Scanner 1.NumberSeized                      1104.0    
+Scanner 1.ScheduledUtilization              .57328    
+Scanner 3.NumberSeized                      810.00    
+Scanner 3.ScheduledUtilization              .83743    
+Scanner 2.NumberSeized                      1688.0    
+Scanner 2.ScheduledUtilization              .88752    
+System.NumberOut                            3599.0    
+
+Beginning replication 8 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 8 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02521     3.7616E-04 .00851     .12506       3596    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3596    
+Entity 1.WaitTime                           .07792     (Corr)     .00000     .24121       3596    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3596    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3596    
+Entity 1.TotalTime                          .10313     (Corr)     .00851     .31036       3596    
+ID and boarding pass check.Queue.WaitingTi  .07315     (Corr)     .00000     .23422       3607    
+Scanner3.Queue.WaitingTime                  .00733     5.6373E-04 .00000     .04269        788    
+Scanner2.Queue.WaitingTime                  .00397     3.2607E-04 .00000     .02570       1692    
+Scanner1.Queue.WaitingTime                  .00517     7.8783E-04 .00000     .02540       1121    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                31.384     (Corr)     .00000     86.000     52.000    
+Resource 1.NumberBusy                       3.7904     (Corr)     .00000     4.0000     4.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .94762     (Corr)     .00000     1.0000     1.0000    
+Scanner 1.NumberBusy                        1.1686     .09734     .00000     2.0000     2.0000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .58431     .04867     .00000     1.0000     1.0000    
+Scanner 3.NumberBusy                        .82862     .02986     .00000     1.0000     1.0000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .82862     .02986     .00000     1.0000     1.0000    
+Scanner 2.NumberBusy                        1.7820     .02731     .00000     2.0000     2.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .89102     .01366     .00000     1.0000     1.0000    
+ID and boarding pass check.Queue.NumberInQ  22.290     (Corr)     .00000     76.000     41.000    
+Scanner3.Queue.NumberInQueue                .48154     .04728     .00000     3.0000     1.0000    
+Scanner2.Queue.NumberInQueue                .56013     (Corr)     .00000     4.0000     1.0000    
+Scanner1.Queue.NumberInQueue                .48308     .11114     .00000     4.0000     .00000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3648.0    
+Entity 1.NumberOut                          3596.0    
+Resource 1.NumberSeized                     3607.0    
+Resource 1.ScheduledUtilization             .94762    
+Scanner 1.NumberSeized                      1121.0    
+Scanner 1.ScheduledUtilization              .58431    
+Scanner 3.NumberSeized                      788.00    
+Scanner 3.ScheduledUtilization              .82862    
+Scanner 2.NumberSeized                      1692.0    
+Scanner 2.ScheduledUtilization              .89102    
+System.NumberOut                            3596.0    
+
+Beginning replication 9 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 9 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02454     4.1193E-04 .00861     .11406       3534    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3534    
+Entity 1.WaitTime                           .02374     .00573     .00000     .15163       3534    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3534    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3534    
+Entity 1.TotalTime                          .04827     .00599     .00887     .21027       3534    
+ID and boarding pass check.Queue.WaitingTi  .01919     .00546     .00000     .13800       3544    
+Scanner3.Queue.WaitingTime                  .00672     5.7811E-04 .00000     .03633        791    
+Scanner2.Queue.WaitingTime                  .00361     3.3463E-04 .00000     .02580       1691    
+Scanner1.Queue.WaitingTime                  .00454     6.8399E-04 .00000     .03202       1057    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                14.268     2.4606     .00000     40.000     19.000    
+Resource 1.NumberBusy                       3.5573     .14125     .00000     4.0000     4.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .88934     .03531     .00000     1.0000     1.0000    
+Scanner 1.NumberBusy                        1.0988     .08960     .00000     2.0000     2.0000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .54944     .04480     .00000     1.0000     1.0000    
+Scanner 3.NumberBusy                        .82954     .02773     .00000     1.0000     1.0000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .82954     .02773     .00000     1.0000     1.0000    
+Scanner 2.NumberBusy                        1.7536     .02672     .00000     2.0000     2.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .87682     .01336     .00000     1.0000     1.0000    
+ID and boarding pass check.Queue.NumberInQ  5.6777     2.1520     .00000     33.000     9.0000    
+Scanner3.Queue.NumberInQueue                .44338     .04970     .00000     4.0000     1.0000    
+Scanner2.Queue.NumberInQueue                .50839     .05213     .00000     4.0000     .00000    
+Scanner1.Queue.NumberInQueue                .39987     .09360     .00000     5.0000     .00000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3553.0    
+Entity 1.NumberOut                          3534.0    
+Resource 1.NumberSeized                     3544.0    
+Resource 1.ScheduledUtilization             .88934    
+Scanner 1.NumberSeized                      1057.0    
+Scanner 1.ScheduledUtilization              .54944    
+Scanner 3.NumberSeized                      791.00    
+Scanner 3.ScheduledUtilization              .82954    
+Scanner 2.NumberSeized                      1691.0    
+Scanner 2.ScheduledUtilization              .87682    
+System.NumberOut                            3534.0    
+
+Beginning replication 10 of 10
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                  Summary for Replication 10 of 10
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+Replication ended at time      : 12.0 Hours 
+Base Time Units: Hours
+
+                                           TALLY VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Observations
+___________________________________________________________________________________________________
+
+Entity 1.VATime                             .02506     3.6428E-04 .00863     .15906       3626    
+Entity 1.NVATime                            .00000     .00000     .00000     .00000       3626    
+Entity 1.WaitTime                           .05175     (Corr)     .00000     .20437       3626    
+Entity 1.TranTime                           .00000     .00000     .00000     .00000       3626    
+Entity 1.OtherTime                          .00000     .00000     .00000     .00000       3626    
+Entity 1.TotalTime                          .07681     (Corr)     .00864     .26020       3626    
+ID and boarding pass check.Queue.WaitingTi  .04709     (Corr)     .00000     .19794       3632    
+Scanner3.Queue.WaitingTime                  .00663     5.4069E-04 .00000     .02910        811    
+Scanner2.Queue.WaitingTime                  .00362     3.2193E-04 .00000     .02319       1701    
+Scanner1.Queue.WaitingTime                  .00456     6.4223E-04 .00000     .02613       1116    
+
+                                     DISCRETE-CHANGE VARIABLES
+
+Identifier                                  Average   Half Width  Minimum    Maximum   Final Value
+___________________________________________________________________________________________________
+
+Entity 1.WIP                                23.220     (Corr)     .00000     71.000     8.0000    
+Resource 1.NumberBusy                       3.8048     .09934     .00000     4.0000     4.0000    
+Resource 1.NumberScheduled                  4.0000     (Insuf)    4.0000     4.0000     4.0000    
+Resource 1.Utilization                      .95121     .02484     .00000     1.0000     1.0000    
+Scanner 1.NumberBusy                        1.1651     .08135     .00000     2.0000     .00000    
+Scanner 1.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 1.Utilization                       .58255     .04068     .00000     1.0000     .00000    
+Scanner 3.NumberBusy                        .83959     .02595     .00000     1.0000     1.0000    
+Scanner 3.NumberScheduled                   1.0000     (Insuf)    1.0000     1.0000     1.0000    
+Scanner 3.Utilization                       .83959     .02595     .00000     1.0000     1.0000    
+Scanner 2.NumberBusy                        1.7705     .02630     .00000     2.0000     1.0000    
+Scanner 2.NumberScheduled                   2.0000     (Insuf)    2.0000     2.0000     2.0000    
+Scanner 2.Utilization                       .88526     .01315     .00000     1.0000     .50000    
+ID and boarding pass check.Queue.NumberInQ  14.254     (Corr)     .00000     62.000     2.0000    
+Scanner3.Queue.NumberInQueue                .44819     .04144     .00000     3.0000     .00000    
+Scanner2.Queue.NumberInQueue                .51373     .04552     .00000     4.0000     .00000    
+Scanner1.Queue.NumberInQueue                .42428     .09089     .00000     5.0000     .00000    
+
+                                             OUTPUTS
+
+Identifier                                   Value
+_____________________________________________________________
+
+Entity 1.NumberIn                           3634.0    
+Entity 1.NumberOut                          3626.0    
+Resource 1.NumberSeized                     3632.0    
+Resource 1.ScheduledUtilization             .95121    
+Scanner 1.NumberSeized                      1116.0    
+Scanner 1.ScheduledUtilization              .58255    
+Scanner 3.NumberSeized                      811.00    
+Scanner 3.ScheduledUtilization              .83959    
+Scanner 2.NumberSeized                      1701.0    
+Scanner 2.ScheduledUtilization              .88526    
+System.NumberOut                            3626.0    
+
+
+                                      ARENA Simulation Results
+                                           Authorized User
+
+                                 Output Summary for 10 Replications
+
+Project: Unnamed Project                                             Run execution date : 3/11/2020
+Analyst: Authorized User                                             Model revision date: 3/11/2020
+
+
+                                             OUTPUTS
+
+Identifier                                 Average    Half-width Minimum    Maximum # Replications
+___________________________________________________________________________________________________
+
+Entity 1.NumberIn                           3604.8     35.265     3553.0     3708.0     10
+Entity 1.NumberOut                          3586.8     35.157     3531.0     3696.0     10
+Resource 1.NumberSeized                     3595.8     34.665     3541.0     3705.0     10
+Resource 1.ScheduledUtilization             .92717     .01787     .88934     .96709     10
+Scanner 1.NumberSeized                      1096.9     27.023     1048.0     1180.0     10
+Scanner 1.ScheduledUtilization              .57059     .01371     .54623     .61216     10
+Scanner 3.NumberSeized                      800.50     6.7292     788.00     811.00     10
+Scanner 3.ScheduledUtilization              .83098     .00565     .81649     .83959     10
+Scanner 2.NumberSeized                      1692.9     7.4904     1676.0     1710.0     10
+Scanner 2.ScheduledUtilization              .88404     .00362     .87575     .89102     10
+System.NumberOut                            3586.8     35.157     3531.0     3696.0     10
+
+Simulation run time: 0.02 minutes.
+Simulation run complete.
